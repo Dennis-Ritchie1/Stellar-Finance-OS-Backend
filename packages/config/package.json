@@ -11,5 +11,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@finance-os/shared": "workspace:*",
+    "dotenv": "^18.0.9",
+    "zod": "^4.6.7"
   }
 }
