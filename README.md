@@ -42,9 +42,14 @@ finance-os-backend/
 │   ├── matching/            # Pure payment→invoice matching engine (no I/O, heavily unit-tested)
 │   ├── shared/              # Zod schemas, enums, error types, money/decimal utils
 │   └── config/              # Env loading + validation (zod), network config (testnet/mainnet)
+├── .github/workflows/ci.yml # format:check, lint, typecheck, test on every push/PR
 ├── docker-compose.yml       # Postgres + Redis for local dev
 ├── turbo.json
 ├── pnpm-workspace.yaml
+├── tsconfig.base.json       # Shared strict TS config
+├── eslint.config.js
+├── vitest.config.ts
+├── .nvmrc                   # Node 24
 ├── .env.example
 ├── AGENTS.md                # Rules for AI coding agents (see §10)
 └── README.md
@@ -56,16 +61,16 @@ finance-os-backend/
 
 | Concern | Choice |
 |---|---|
-| Runtime | Node.js LTS, TypeScript (strict) |
+| Runtime | Node.js 24+ (see `.nvmrc`), TypeScript (strict) |
 | Monorepo | pnpm workspaces + Turborepo |
 | HTTP | Fastify + `@fastify/swagger` (generates OpenAPI) |
 | Validation | Zod (shared with OpenAPI via `fastify-type-provider-zod`) |
 | Database | PostgreSQL + Prisma |
 | Jobs/queues | BullMQ + Redis |
 | Stellar | `@stellar/stellar-sdk` (Horizon + RPC clients, tx building) |
-| Auth | Email + password (argon2) with session/JWT; wallet ownership proven via signed challenge |
+| Auth | Email + password (argon2id) with opaque bearer session tokens (only their SHA-256 is stored); wallet ownership proven via signed challenge (planned) |
 | Money | Store amounts as **strings / `Decimal(38,7)`** — Stellar amounts have 7 decimal places. Never use JS floats. |
-| Tests | Vitest + Testcontainers (Postgres) for integration |
+| Tests | Vitest + Testcontainers (Postgres) for integration — Docker required |
 | Logging | Pino |
 
 ---
@@ -142,7 +147,7 @@ Watches every `TreasuryAccount` and records payments.
 - Captures payments, path payments, claimable-balance claims, and account merges.
 - Writes `Transaction` rows idempotently (upsert on `txHash + operationIndex`), then enqueues a `match-transaction` job.
 - On restart, resumes from the cursor — no gaps, no duplicates.
-- Backfill command: `pnpm --filter indexer backfill --account G... --from <cursor|ledger>`.
+- Backfill command: `pnpm --filter @finance-os/indexer backfill --account G... --from <cursor|ledger>` (arguments are parsed; paging through history lands with build-order task 8).
 
 > ⚠️ Verify before committing to a data source: the Stellar ecosystem is shifting from Horizon toward Stellar RPC. Stellar RPC only retains recent history (a limited window — check current docs), so it is unsuitable for long backfills on its own. The `packages/stellar` interface should hide which source is used, so you can switch to RPC events or a third-party indexer later without touching matching logic.
 
@@ -180,13 +185,31 @@ Batch payouts (several approved requests in one transaction, up to Stellar's ope
 
 All routes are under `/v1`, org-scoped via `/orgs/:orgId/...`, and documented automatically at `/docs` (Swagger UI) and `/openapi.json`. **The frontend generates its typed client from `/openapi.json` — this file is the contract between repos.**
 
+Authenticated routes take `Authorization: Bearer <token>` (from register/login). A caller who isn't a member of `:orgId` gets **404**, the same as for a missing org; a member whose role lacks the permission gets **403**. See [`apps/api/README.md`](./apps/api/README.md) for the RBAC matrix.
+
+**Implemented**
+
 ```
+GET    /health                         # liveness (outside /v1)
+
 POST   /auth/register | /auth/login | /auth/logout
+GET    /auth/me
+
+GET    /orgs                           # orgs the caller belongs to
+POST   /orgs                           # caller becomes owner
+GET    /orgs/:orgId
+PATCH  /orgs/:orgId
+CRUD   /orgs/:orgId/members
+CRUD   /orgs/:orgId/treasury-accounts
+```
+
+**Planned**
+
+```
 POST   /auth/wallet/challenge         # returns a challenge to sign
 POST   /auth/wallet/verify            # links a wallet address to the user
 
 GET    /orgs/:orgId/dashboard          # balances, 30-day inflow/outflow, open invoices, pending approvals
-CRUD   /orgs/:orgId/treasury-accounts
 CRUD   /orgs/:orgId/clients
 CRUD   /orgs/:orgId/invoices
 POST   /orgs/:orgId/invoices/:id/send
@@ -203,28 +226,33 @@ GET    /orgs/:orgId/reports/treasury?from=&to=
 POST   /orgs/:orgId/exports  { format: "csv", type: "reconciliation", from, to }
 GET    /orgs/:orgId/exports/:id/download
 CRUD   /orgs/:orgId/approval-policies
-CRUD   /orgs/:orgId/members
 ```
 
 ---
 
 ## 9. Configuration
 
-`.env.example`:
+`.env.example` (validated at startup by `packages/config/src/env.schema.ts`):
 
 ```bash
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/finance_os
 REDIS_URL=redis://localhost:6379
-JWT_SECRET=change-me
+JWT_SECRET=change-me                        # required (min 8 chars); sessions currently use opaque tokens
 STELLAR_NETWORK=testnet                     # testnet | mainnet
 HORIZON_URL=https://horizon-testnet.stellar.org
 STELLAR_RPC_URL=https://soroban-testnet.stellar.org
 USDC_ISSUER=                                # set per network — see note below
 CONTRACT_DEPLOYMENTS_PATH=./deployments/testnet.json   # copied from contracts repo (Phase 2)
 WEB_APP_URL=http://localhost:5173
+API_PORT=3000
+LOG_LEVEL=info
+ALLOW_MAINNET=false                         # mainnet refuses to start unless this is "true"
+SEED_TREASURY_ADDRESS=                      # optional testnet G-address for `pnpm db:seed`
 ```
 
-> ⚠️ Asset issuers must be taken from Circle's official documentation for each network, not copied from examples. Keep them in `packages/config/assets.ts`, keyed by network, so testnet and mainnet can't be mixed.
+**Mainnet guard:** every app calls `assertNetworkAllowed()` on startup. `STELLAR_NETWORK=mainnet` alone is not enough — `ALLOW_MAINNET=true` must also be set (AGENTS.md rule 8).
+
+> ⚠️ Asset issuers must be taken from Circle's official documentation for each network, not copied from examples. They live in `packages/config/src/assets.ts`, keyed by network, so testnet and mainnet can't be mixed.
 
 ### Local development
 
@@ -244,7 +272,10 @@ Use Friendbot to fund testnet accounts.
 
 ```bash
 pnpm check    # format:check + lint + typecheck + test
+pnpm format   # fix formatting with Prettier
 ```
+
+CI (`.github/workflows/ci.yml`) runs the same four steps on every push and PR, so run `pnpm check` before pushing. Integration tests start Postgres with Testcontainers, so Docker must be running.
 
 Once running: API on `http://localhost:3000`, Swagger UI at `/docs`, OpenAPI at `/openapi.json`, liveness at `/health`.
 
@@ -256,20 +287,22 @@ The rules live in [`AGENTS.md`](./AGENTS.md).
 
 ### Build order (one task per AI session)
 
-| # | Task | Done when |
-|---|---|---|
-| 1 | Scaffold monorepo: pnpm, turbo, tsconfig, eslint, vitest, docker-compose | `pnpm dev` starts empty apps |
-| 2 | `packages/config` + `packages/shared` (env, enums, money utils) | Unit tests for decimal math pass |
-| 3 | `packages/db`: Prisma schema from §4, migrations, seed | `pnpm db:seed` creates demo org |
-| 4 | `apps/api`: auth + orgs + members + RBAC middleware | Cross-org access tests pass |
-| 5 | Clients, invoices, vendors CRUD + OpenAPI | `/openapi.json` validates |
-| 6 | `packages/stellar`: muxed address derivation, asset config, payment tx builder | Unit tests round-trip muxed IDs |
-| 7 | `packages/matching` engine | Table-driven tests for every case in §5 |
-| 8 | `apps/indexer` with cursor persistence | Testnet payment appears as a Transaction within seconds |
-| 9 | `apps/worker`: match job, overdue job | End-to-end: pay invoice on testnet → status `paid` |
-| 10 | Payment requests + approvals + build-tx + submit with XDR verification | Tampered XDR is rejected in tests |
-| 11 | Dashboard + treasury report endpoints | Numbers match seeded data |
-| 12 | CSV reconciliation export | Opens cleanly in Excel/Sheets |
+Status: ✅ done · 🟡 partly done · ⬜ not started
+
+| # | Task | Done when | Status |
+|---|---|---|---|
+| 1 | Scaffold monorepo: pnpm, turbo, tsconfig, eslint, vitest, docker-compose | `pnpm dev` starts empty apps | ✅ |
+| 2 | `packages/config` + `packages/shared` (env, enums, money utils) | Unit tests for decimal math pass | ✅ |
+| 3 | `packages/db`: Prisma schema from §4, migrations, seed | `pnpm db:seed` creates demo org | ✅ |
+| 4 | `apps/api`: auth + orgs + members + RBAC middleware | Cross-org access tests pass | ✅ |
+| 5 | Clients, invoices, vendors CRUD + OpenAPI | `/openapi.json` validates | 🟡 treasury accounts done; clients, invoices, vendors to do |
+| 6 | `packages/stellar`: muxed address derivation, asset config, payment tx builder | Unit tests round-trip muxed IDs | ✅ (also memos, Horizon normalization, signed-XDR verification) |
+| 7 | `packages/matching` engine | Table-driven tests for every case in §5 | ⬜ types only |
+| 8 | `apps/indexer` with cursor persistence | Testnet payment appears as a Transaction within seconds | 🟡 Horizon payment source in `packages/stellar` and backfill CLI args; streaming not wired |
+| 9 | `apps/worker`: match job, overdue job | End-to-end: pay invoice on testnet → status `paid` | ⬜ queue names only |
+| 10 | Payment requests + approvals + build-tx + submit with XDR verification | Tampered XDR is rejected in tests | 🟡 `verifySignedPayment` done and tested; routes to do |
+| 11 | Dashboard + treasury report endpoints | Numbers match seeded data | ⬜ |
+| 12 | CSV reconciliation export | Opens cleanly in Excel/Sheets | ⬜ |
 
 ### Prompt template for each task
 
