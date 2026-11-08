@@ -1,0 +1,14 @@
+{
+  "name": "@finance-os/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "HTTP API (Fastify): auth, CRUD, approvals, tx building, exports",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/main.ts",
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}
