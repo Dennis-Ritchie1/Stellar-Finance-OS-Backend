@@ -19,7 +19,8 @@
     "db:studio": "prisma studio"
   },
   "devDependencies": {
-    "prisma": "7.10.1"
+    "prisma": "7.10.1",
+    "tsx": "^4.23.15"
   },
   "dependencies": {
     "@finance-os/config": "workspace:*",
