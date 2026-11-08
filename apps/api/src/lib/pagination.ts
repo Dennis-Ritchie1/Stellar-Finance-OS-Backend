@@ -1,6 +1,11 @@
 import { PaginationQuerySchema } from '@finance-os/shared';
+import { z } from 'zod';
 
-export { PaginationQuerySchema };
+/** List query: `limit` and an opaque `cursor` (the last id of the previous page). */
+export const PageQuerySchema = PaginationQuerySchema.extend({ cursor: z.uuid().optional() });
+
+export const pageOf = <T extends z.ZodType>(item: T) =>
+  z.object({ items: z.array(item), nextCursor: z.uuid().nullable() });
 
 /**
  * Keyset pagination over uuid7 ids (time-ordered). Fetch `limit + 1` rows
