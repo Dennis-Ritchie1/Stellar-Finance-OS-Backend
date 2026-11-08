@@ -386,9 +386,15 @@ model Transaction {
   assetCode         String
   assetIssuer       String?
   amount            Decimal              @db.Decimal(38, 7)
+  memo              String?
+  memoType          MemoType             @default(none)
+  /// uint64 muxed id as a decimal string (exceeds JS safe integer range).
+  muxedId           String?
+  ledger            Int
 
   @@unique([txHash, operationIndex])
   @@index([organizationId, createdAt])
   @@index([treasuryAccountId])
+  @@index([muxedId])
   @@map("transactions")
 }
