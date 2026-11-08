@@ -4,3 +4,4 @@ coverage
 .turbo
 pnpm-lock.yaml
 *.md
+packages/db/src/generated
