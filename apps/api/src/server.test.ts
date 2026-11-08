@@ -10,6 +10,7 @@ describe('api server', () => {
     app.get('/boom', async () => {
       throw notFound('Invoice');
     });
+    app.post('/echo', async (req) => req.body);
     await app.ready();
   });
 
@@ -33,5 +34,15 @@ describe('api server', () => {
     const res = await app.inject({ method: 'GET', url: '/boom' });
     expect(res.statusCode).toBe(404);
     expect(res.json()).toEqual({ error: { code: 'NOT_FOUND', message: 'Invoice not found' } });
+  });
+
+  it('rejects bodies containing a Stellar secret key', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/echo',
+      payload: { signer: 'S' + 'A'.repeat(55) },
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.body).not.toContain('SAAAA');
   });
 });
