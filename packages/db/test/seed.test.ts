@@ -52,7 +52,9 @@ describe('seedDemo', () => {
   });
 
   it('creates a pending payment request with one approval toward a 2-of-N policy', async () => {
-    const policy = await db.prisma.approvalPolicy.findFirstOrThrow({ include: { approvers: true } });
+    const policy = await db.prisma.approvalPolicy.findFirstOrThrow({
+      include: { approvers: true },
+    });
     expect(policy.threshold).toBe(2);
     expect(policy.approvers.length).toBeGreaterThanOrEqual(2);
     const pr = await db.prisma.paymentRequest.findFirstOrThrow({ include: { approvals: true } });

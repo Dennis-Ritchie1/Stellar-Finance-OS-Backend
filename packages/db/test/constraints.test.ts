@@ -51,7 +51,13 @@ describe('database constraints', () => {
     const t = await db.prisma.transaction.create({ data: await txData() });
     await expect(
       db.prisma.paymentMatch.create({
-        data: { organizationId, transactionId: t.id, amount: '1', method: 'manual', confidence: '1' },
+        data: {
+          organizationId,
+          transactionId: t.id,
+          amount: '1',
+          method: 'manual',
+          confidence: '1',
+        },
       }),
     ).rejects.toThrow();
   });
