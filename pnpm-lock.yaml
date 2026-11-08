@@ -225,7 +225,11 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
 
-  packages/stellar: {}
+  packages/stellar:
+    dependencies:
+      '@finance-os/shared':
+        specifier: workspace:*
+        version: link:../shared
 
 packages:
 
