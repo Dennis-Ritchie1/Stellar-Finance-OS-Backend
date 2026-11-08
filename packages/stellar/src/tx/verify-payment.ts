@@ -1,5 +1,10 @@
 import { amountsEqual } from '@finance-os/shared';
-import { FeeBumpTransaction, TransactionBuilder, type Transaction } from '@stellar/stellar-sdk';
+import {
+  FeeBumpTransaction,
+  Keypair,
+  TransactionBuilder,
+  type Transaction,
+} from '@stellar/stellar-sdk';
 import { assetsEqual, fromSdkAsset } from '../asset/asset.js';
 import { fromSdkMemo, memosEqual } from '../memo/memo.js';
 import type { PaymentIntent } from './build-payment.js';
@@ -11,6 +16,22 @@ export interface VerifyOptions {
    * be byte-for-byte the same transaction (signatures aside).
    */
   expectedHash?: string;
+  /**
+   * Public keys allowed to sign (e.g. a multisig treasury's signers).
+   * Defaults to the source account's master key.
+   */
+  allowedSigners?: string[];
+}
+
+/** Count signatures that cryptographically verify against an allowed signer. */
+function countValidSignatures(tx: Transaction, signers: string[]): number {
+  const hash = tx.hash();
+  const keys = signers.map((s) => Keypair.fromPublicKey(s));
+  return tx.signatures.filter((sig) =>
+    keys.some(
+      (k) => k.signatureHint().equals(sig.hint()) && k.verify(hash, sig.signature()),
+    ),
+  ).length;
 }
 
 export type VerifyResult =
@@ -45,7 +66,12 @@ export function verifySignedPayment(
     errors.push('Transaction differs from the one built for this request');
   }
   if (tx.source !== expected.source) errors.push('Source account differs');
-  if (tx.signatures.length === 0) errors.push('Transaction is not signed');
+  if (tx.signatures.length === 0) {
+    errors.push('Transaction is not signed');
+  } else if (countValidSignatures(tx, opts.allowedSigners ?? [expected.source]) === 0) {
+    // Also catches a tx signed for another network: the passphrase is part of the hash.
+    errors.push('No valid signature from an allowed signer for this network');
+  }
   if (!memosEqual(fromSdkMemo(tx.memo), expected.memo ?? { type: 'none' })) {
     errors.push('Memo differs');
   }
