@@ -141,6 +141,7 @@ model Organization {
   invoices         Invoice[]
   invoiceLineItems InvoiceLineItem[]
   vendors          Vendor[]
+  paymentRequests  PaymentRequest[]
 
   @@map("organizations")
 }
@@ -267,7 +268,29 @@ model Vendor {
   memoRequired   Boolean      @default(false)
   memo           String?
   memoType       MemoType     @default(none)
+  paymentRequests PaymentRequest[]
 
   @@index([organizationId])
   @@map("vendors")
+}
+
+model PaymentRequest {
+  id                String               @id @default(uuid(7)) @db.Uuid
+  organizationId    String               @db.Uuid
+  organization      Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  vendorId          String               @db.Uuid
+  vendor            Vendor               @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  assetCode         String
+  assetIssuer       String?
+  amount            Decimal              @db.Decimal(38, 7)
+  reason            String
+  /// Attachment metadata: [{ name, url, contentType }].
+  attachments       Json                 @default("[]")
+  status            PaymentRequestStatus @default(draft)
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([organizationId, status])
+  @@index([vendorId])
+  @@map("payment_requests")
 }
