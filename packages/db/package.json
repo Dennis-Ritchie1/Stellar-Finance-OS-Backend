@@ -19,6 +19,8 @@
     "db:studio": "prisma studio"
   },
   "devDependencies": {
+    "@stellar/stellar-sdk": "^17.4.0",
+    "argon2": "^0.45.2",
     "prisma": "7.10.1",
     "tsx": "^4.23.15"
   },
