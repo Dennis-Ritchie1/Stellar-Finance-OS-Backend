@@ -220,8 +220,11 @@ model Invoice {
   paymentRefId      BigInt          @unique @default(autoincrement())
   /// M... address derived from the treasury G-address + paymentRefId.
   muxedAddress      String?         @unique
+  /// Memo fallback for wallets without muxed support (e.g. INV0042) — README §5.2.
+  memo              String?
 
   @@unique([organizationId, number])
+  @@unique([treasuryAccountId, memo])
   @@index([organizationId, status])
   @@index([clientId])
   @@index([treasuryAccountId])
