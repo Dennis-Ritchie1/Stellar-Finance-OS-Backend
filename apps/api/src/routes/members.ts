@@ -165,7 +165,10 @@ export const memberRoutes: FastifyPluginAsyncZod = async (app) => {
         summary: 'Remove a member',
         security: bearerSecurity,
         params: OrgResourceParamsSchema,
-        response: { 204: z.null().describe('Member removed'), ...errorResponses(401, 403, 404, 409) },
+        response: {
+          204: z.null().describe('Member removed'),
+          ...errorResponses(401, 403, 404, 409),
+        },
       },
     },
     async (req, reply) => {

@@ -8,7 +8,9 @@ describe('api server', () => {
 
   beforeAll(async () => {
     // These routes never touch the DB; the client connects lazily and never will.
-    app = await buildServer({ prisma: createPrismaClient('postgresql://unused@127.0.0.1:1/unused') });
+    app = await buildServer({
+      prisma: createPrismaClient('postgresql://unused@127.0.0.1:1/unused'),
+    });
     app.get('/boom', async () => {
       throw notFound('Invoice');
     });
