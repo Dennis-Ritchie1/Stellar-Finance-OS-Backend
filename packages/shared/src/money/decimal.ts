@@ -1,4 +1,4 @@
-import DecimalJs from 'decimal.js';
+import { Decimal as DecimalJs } from 'decimal.js';
 
 /**
  * Isolated Decimal constructor for money math. Never use JS floats for amounts.
