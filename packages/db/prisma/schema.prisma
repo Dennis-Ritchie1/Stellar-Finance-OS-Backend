@@ -18,3 +18,8 @@ enum MemberRole {
   accountant
   viewer
 }
+
+enum StellarNetwork {
+  testnet
+  mainnet
+}
