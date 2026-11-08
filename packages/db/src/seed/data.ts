@@ -16,3 +16,13 @@ export const DEMO_USERS = [
 ] as const;
 
 export type DemoRole = (typeof DEMO_USERS)[number]['role'];
+
+export const DEMO_CLIENTS = [
+  { name: 'Lagos Logistics Ltd', email: 'ap@lagoslogistics.test' },
+  { name: 'Accra Retail Group', email: 'finance@accraretail.test' },
+] as const;
+
+export const DEMO_VENDORS = [
+  { name: 'Cloud Hosting Inc', email: 'billing@cloudhost.test', memoRequired: false },
+  { name: 'Exchange Deposit Desk', email: 'ops@exchange.test', memoRequired: true },
+] as const;
