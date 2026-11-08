@@ -222,6 +222,8 @@ model Invoice {
   muxedAddress      String?         @unique
   /// Memo fallback for wallets without muxed support (e.g. INV0042) — README §5.2.
   memo              String?
+  /// Unguessable token for the unauthenticated payment page.
+  publicToken       String          @unique
 
   @@unique([organizationId, number])
   @@unique([treasuryAccountId, memo])
