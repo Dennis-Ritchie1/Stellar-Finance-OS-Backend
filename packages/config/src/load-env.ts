@@ -17,3 +17,14 @@ export function parseEnv(source: Record<string, string | undefined>): Env {
   }
   return result.data;
 }
+
+let cached: Env | undefined;
+
+/** Load `.env` (if present) into process.env, validate, and memoise. */
+export async function loadEnv(): Promise<Env> {
+  if (cached) return cached;
+  const { config } = await import('dotenv');
+  config({ quiet: true });
+  cached = parseEnv(process.env);
+  return cached;
+}
