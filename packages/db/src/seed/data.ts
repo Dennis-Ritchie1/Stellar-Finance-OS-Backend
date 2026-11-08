@@ -26,3 +26,34 @@ export const DEMO_VENDORS = [
   { name: 'Cloud Hosting Inc', email: 'billing@cloudhost.test', memoRequired: false },
   { name: 'Exchange Deposit Desk', email: 'ops@exchange.test', memoRequired: true },
 ] as const;
+
+/** clientIndex refers to DEMO_CLIENTS. Amounts are decimal strings, never floats. */
+export const DEMO_INVOICES = [
+  {
+    number: 'INV-2026-0001',
+    clientIndex: 0,
+    status: 'draft',
+    dueInDays: 30,
+    lineItems: [
+      { description: 'Freight handling', quantity: '1', unitPrice: '1500' },
+      { description: 'Customs documentation', quantity: '2', unitPrice: '125.5' },
+    ],
+  },
+  {
+    number: 'INV-2026-0002',
+    clientIndex: 0,
+    status: 'sent',
+    dueInDays: 14,
+    lineItems: [{ description: 'Warehousing — October', quantity: '1', unitPrice: '800' }],
+  },
+  {
+    number: 'INV-2026-0003',
+    clientIndex: 1,
+    status: 'partially_paid',
+    dueInDays: 7,
+    lineItems: [{ description: 'Last-mile delivery', quantity: '40', unitPrice: '25' }],
+  },
+] as const;
+
+/** Partial payment received against INV-2026-0003 (via its muxed address). */
+export const DEMO_PARTIAL_PAYMENT = { invoiceNumber: 'INV-2026-0003', amount: '250' } as const;
