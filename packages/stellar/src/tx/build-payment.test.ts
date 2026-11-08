@@ -26,7 +26,8 @@ describe('buildPaymentTransaction', () => {
     const op = tx.operations[0]!;
     expect(op).toMatchObject({ type: 'payment', destination: DEST, amount: '125.5000000' });
     expect(op.type === 'payment' && op.asset.getIssuer()).toBe(ISSUER);
-    expect(built.hash).toBe(tx.hash().toString('hex'));
+    expect(built.hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(built.hash).toBe(Buffer.from(tx.hash()).toString('hex'));
   });
 
   it('sets the memo and supports muxed destinations', () => {

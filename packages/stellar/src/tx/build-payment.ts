@@ -53,5 +53,5 @@ export function buildPaymentTransaction(
     )
     .setTimeout(opts.timeoutSeconds ?? 15 * 60)
     .build();
-  return { xdr: tx.toXDR(), hash: tx.hash().toString('hex') };
+  return { xdr: tx.toXDR(), hash: Buffer.from(tx.hash()).toString('hex') };
 }
