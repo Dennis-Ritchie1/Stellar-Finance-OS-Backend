@@ -143,6 +143,7 @@ model Organization {
   vendors          Vendor[]
   paymentRequests  PaymentRequest[]
   approvals        Approval[]
+  approvalPolicies ApprovalPolicy[]
 
   @@map("organizations")
 }
@@ -327,4 +328,22 @@ model Approval {
   @@unique([paymentRequestId, memberId])
   @@index([organizationId])
   @@map("approvals")
+}
+
+/// M-of-N rule: `threshold` approvals required from the listed approvers,
+/// optionally only for payments above `amountAbove`.
+model ApprovalPolicy {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  threshold      Int
+  amountAbove    Decimal?     @db.Decimal(38, 7)
+  /// Asset the amountAbove rule applies to; null = any asset.
+  assetCode      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@map("approval_policies")
 }
