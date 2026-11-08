@@ -218,6 +218,8 @@ model Invoice {
   treasuryAccount   TreasuryAccount @relation(fields: [treasuryAccountId], references: [id], onDelete: Restrict)
   /// Globally unique numeric id used as the muxed-account id (uint64) — README §5.1.
   paymentRefId      BigInt          @unique @default(autoincrement())
+  /// M... address derived from the treasury G-address + paymentRefId.
+  muxedAddress      String?         @unique
 
   @@unique([organizationId, number])
   @@index([organizationId, status])
