@@ -238,6 +238,16 @@ pnpm dev                             # runs api, indexer, worker via turbo
 
 Use Friendbot to fund testnet accounts.
 
+> `pnpm db:migrate` / `pnpm db:seed` arrive with build-order task 3.
+
+### Quality gate
+
+```bash
+pnpm check    # format:check + lint + typecheck + test
+```
+
+Once running: API on `http://localhost:3000`, Swagger UI at `/docs`, OpenAPI at `/openapi.json`, liveness at `/health`.
+
 ---
 
 ## 10. Building this with AI — rules (`AGENTS.md`)
