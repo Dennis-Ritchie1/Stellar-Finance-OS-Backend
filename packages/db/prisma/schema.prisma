@@ -138,6 +138,7 @@ model Organization {
   members   Member[]
   treasuryAccounts TreasuryAccount[]
   clients          Client[]
+  invoices         Invoice[]
 
   @@map("organizations")
 }
@@ -185,7 +186,35 @@ model Client {
   knownAddresses String[]     @default([])
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  invoices       Invoice[]
 
   @@index([organizationId])
   @@map("clients")
+}
+
+model Invoice {
+  id                String          @id @default(uuid(7)) @db.Uuid
+  organizationId    String          @db.Uuid
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientId          String          @db.Uuid
+  client            Client          @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  /// Human number, e.g. INV-2026-0042. Unique per org.
+  number            String
+  assetCode         String
+  assetIssuer       String?
+  amount            Decimal         @db.Decimal(38, 7)
+  amountPaid        Decimal         @default(0) @db.Decimal(38, 7)
+  dueDate           DateTime        @db.Date
+  status            InvoiceStatus   @default(draft)
+  notes             String?
+  sentAt            DateTime?
+  paidAt            DateTime?
+  voidedAt          DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([organizationId, number])
+  @@index([organizationId, status])
+  @@index([clientId])
+  @@map("invoices")
 }
