@@ -1,23 +1,27 @@
 import { startTestDatabase, type TestDatabase } from '@finance-os/db/testing';
 import type { MemberRole } from '@finance-os/shared';
 import { buildServer } from '../src/server.js';
+import { FakeGateway, testStellarContext } from './fake-stellar.js';
 
 export type App = Awaited<ReturnType<typeof buildServer>>;
 
 export interface Harness {
   app: App;
   db: TestDatabase;
+  gateway: FakeGateway;
   close: () => Promise<void>;
 }
 
 /** A real API instance backed by a throwaway migrated Postgres. */
 export async function startHarness(): Promise<Harness> {
   const db = await startTestDatabase();
-  const app = await buildServer({ prisma: db.prisma });
+  const gateway = new FakeGateway();
+  const app = await buildServer({ prisma: db.prisma, stellar: testStellarContext(gateway) });
   await app.ready();
   return {
     app,
     db,
+    gateway,
     close: async () => {
       await app.close();
       await db.stop();

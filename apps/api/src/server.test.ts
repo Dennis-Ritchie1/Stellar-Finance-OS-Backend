@@ -1,6 +1,7 @@
 import { createPrismaClient } from '@finance-os/db';
 import { notFound } from '@finance-os/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { testStellarContext } from '../test/fake-stellar.js';
 import { buildServer } from './server.js';
 
 describe('api server', () => {
@@ -10,6 +11,7 @@ describe('api server', () => {
     // These routes never touch the DB; the client connects lazily and never will.
     app = await buildServer({
       prisma: createPrismaClient('postgresql://unused@127.0.0.1:1/unused'),
+      stellar: testStellarContext(),
     });
     app.get('/boom', async () => {
       throw notFound('Invoice');

@@ -1,5 +1,6 @@
 import { createPrismaClient } from '@finance-os/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { testStellarContext } from './fake-stellar.js';
 import { buildServer } from '../src/server.js';
 
 /** /openapi.json is the contract with the frontend (AGENTS.md rule 5). */
@@ -16,6 +17,7 @@ describe('OpenAPI contract', () => {
   beforeAll(async () => {
     app = await buildServer({
       prisma: createPrismaClient('postgresql://unused@127.0.0.1:1/unused'),
+      stellar: testStellarContext(),
     });
     await app.ready();
     doc = (await app.inject({ method: 'GET', url: '/openapi.json' })).json();
