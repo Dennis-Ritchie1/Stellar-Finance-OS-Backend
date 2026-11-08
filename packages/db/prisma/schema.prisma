@@ -42,3 +42,8 @@ enum PaymentRequestStatus {
   rejected
   failed
 }
+
+enum TransactionDirection {
+  in
+  out
+}
