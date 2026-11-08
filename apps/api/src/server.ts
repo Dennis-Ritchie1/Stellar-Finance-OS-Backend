@@ -6,6 +6,7 @@ import {
 } from 'fastify-type-provider-zod';
 import { registerErrorHandler } from './plugins/error-handler.js';
 import { registerOpenApi } from './plugins/openapi.js';
+import { registerSecretGuard } from './plugins/secret-guard.js';
 import { healthRoutes } from './routes/health.js';
 import { v1Routes } from './routes/v1.js';
 
@@ -15,6 +16,7 @@ export async function buildServer(opts: FastifyServerOptions = {}) {
   app.setSerializerCompiler(serializerCompiler);
 
   registerErrorHandler(app);
+  registerSecretGuard(app);
   await registerOpenApi(app);
 
   await app.register(healthRoutes);
