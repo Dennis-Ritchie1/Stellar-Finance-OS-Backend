@@ -76,3 +76,8 @@ enum MemoType {
   hash
   return
 }
+
+enum ApprovalDecision {
+  approved
+  rejected
+}
