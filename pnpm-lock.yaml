@@ -214,7 +214,11 @@ importers:
 
   packages/db: {}
 
-  packages/matching: {}
+  packages/matching:
+    dependencies:
+      '@finance-os/shared':
+        specifier: workspace:*
+        version: link:../shared
 
   packages/shared:
     dependencies:
