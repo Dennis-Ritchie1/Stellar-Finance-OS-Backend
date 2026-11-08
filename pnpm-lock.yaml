@@ -289,6 +289,9 @@ importers:
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../shared
+      '@finance-os/stellar':
+        specifier: workspace:*
+        version: link:../stellar
       '@prisma/adapter-pg':
         specifier: 7.10.1
         version: 7.10.1
