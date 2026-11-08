@@ -5,7 +5,8 @@
   "description": "Prisma schema, migrations, seed, typed client",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./testing": "./test/postgres.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

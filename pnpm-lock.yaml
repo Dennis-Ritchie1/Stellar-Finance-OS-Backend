@@ -211,9 +211,15 @@ importers:
       '@finance-os/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@finance-os/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      argon2:
+        specifier: ^0.45.2
+        version: 0.45.2
       fastify:
         specifier: ^5.12.8
         version: 5.12.8
