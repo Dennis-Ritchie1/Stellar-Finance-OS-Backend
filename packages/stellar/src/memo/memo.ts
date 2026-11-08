@@ -54,13 +54,17 @@ export function fromSdkMemo(memo: Memo): MemoValue {
     case 'text':
       return {
         type: 'text',
-        value: Buffer.isBuffer(memo.value) ? memo.value.toString('utf8') : String(memo.value),
+        // Decoded envelopes carry text memos as raw bytes (Uint8Array), not strings.
+        value:
+          typeof memo.value === 'string'
+            ? memo.value
+            : Buffer.from(memo.value as Uint8Array).toString('utf8'),
       };
     case 'id':
       return { type: 'id', value: String(memo.value) };
     case 'hash':
     case 'return':
-      return { type: memo.type, value: Buffer.from(memo.value as Buffer).toString('hex') };
+      return { type: memo.type, value: Buffer.from(memo.value as Uint8Array).toString('hex') };
   }
 }
 
