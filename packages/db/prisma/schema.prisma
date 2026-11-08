@@ -1,0 +1,12 @@
+// Domain model — README §4. Every business record is scoped to an Organization.
+// Money columns are Decimal(38,7): Stellar amounts have 7 decimal places.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}
