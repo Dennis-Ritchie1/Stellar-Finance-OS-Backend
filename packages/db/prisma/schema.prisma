@@ -155,6 +155,7 @@ model Member {
   role           MemberRole
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  paymentRequestsCreated PaymentRequest[] @relation("PaymentRequestCreator")
 
   @@unique([organizationId, userId])
   @@index([userId])
@@ -289,6 +290,8 @@ model PaymentRequest {
   status            PaymentRequestStatus @default(draft)
   createdAt         DateTime             @default(now())
   updatedAt         DateTime             @updatedAt
+  createdByMemberId String               @db.Uuid
+  createdBy         Member               @relation("PaymentRequestCreator", fields: [createdByMemberId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, status])
   @@index([vendorId])
