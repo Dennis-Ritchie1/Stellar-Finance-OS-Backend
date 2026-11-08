@@ -159,6 +159,7 @@ model Member {
   updatedAt      DateTime     @updatedAt
   paymentRequestsCreated PaymentRequest[] @relation("PaymentRequestCreator")
   approvals              Approval[]
+  approverOf             ApprovalPolicyApprover[]
 
   @@unique([organizationId, userId])
   @@index([userId])
@@ -343,7 +344,20 @@ model ApprovalPolicy {
   assetCode      String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  approvers      ApprovalPolicyApprover[]
 
   @@index([organizationId])
   @@map("approval_policies")
+}
+
+/// Join table: which members may approve under a policy (the N in M-of-N).
+model ApprovalPolicyApprover {
+  policyId String         @db.Uuid
+  policy   ApprovalPolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  memberId String         @db.Uuid
+  member   Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([policyId, memberId])
+  @@index([memberId])
+  @@map("approval_policy_approvers")
 }
