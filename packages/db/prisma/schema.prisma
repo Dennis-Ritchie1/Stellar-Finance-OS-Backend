@@ -144,6 +144,7 @@ model Organization {
   paymentRequests  PaymentRequest[]
   approvals        Approval[]
   approvalPolicies ApprovalPolicy[]
+  transactions     Transaction[]
 
   @@map("organizations")
 }
@@ -180,6 +181,7 @@ model TreasuryAccount {
   updatedAt      DateTime       @updatedAt
   invoices       Invoice[]
   paymentRequests PaymentRequest[]
+  transactions    Transaction[]
 
   @@unique([network, stellarAddress])
   @@index([organizationId])
@@ -360,4 +362,28 @@ model ApprovalPolicyApprover {
   @@id([policyId, memberId])
   @@index([memberId])
   @@map("approval_policy_approvers")
+}
+
+/// An on-chain payment operation touching a treasury account.
+/// (txHash, operationIndex) is the idempotency key — AGENTS.md #6.
+model Transaction {
+  id                String               @id @default(uuid(7)) @db.Uuid
+  organizationId    String               @db.Uuid
+  organization      Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  treasuryAccountId String               @db.Uuid
+  treasuryAccount   TreasuryAccount      @relation(fields: [treasuryAccountId], references: [id], onDelete: Restrict)
+  txHash            String
+  operationIndex    Int
+  pagingToken       String
+  direction         TransactionDirection
+  operationType     OperationType
+  status            TransactionStatus
+  /// Ledger close time.
+  createdAt         DateTime
+  indexedAt         DateTime             @default(now())
+
+  @@unique([txHash, operationIndex])
+  @@index([organizationId, createdAt])
+  @@index([treasuryAccountId])
+  @@map("transactions")
 }
