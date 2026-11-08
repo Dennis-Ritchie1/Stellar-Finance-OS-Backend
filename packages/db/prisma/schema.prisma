@@ -32,3 +32,13 @@ enum InvoiceStatus {
   overdue
   void
 }
+
+enum PaymentRequestStatus {
+  draft
+  pending_approval
+  approved
+  submitted
+  settled
+  rejected
+  failed
+}
