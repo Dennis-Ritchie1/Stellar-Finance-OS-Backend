@@ -1,13 +1,19 @@
 import { assertNetworkAllowed, loadEnv } from '@finance-os/config';
+import { createPrismaClient } from '@finance-os/db';
 import { loggerOptions } from './logger.js';
 import { buildServer } from './server.js';
 
 const env = await loadEnv();
 assertNetworkAllowed(env);
 
-const app = await buildServer({
-  logger: loggerOptions(env.LOG_LEVEL, env.NODE_ENV === 'development'),
-});
+const prisma = createPrismaClient(env.DATABASE_URL);
+const app = await buildServer(
+  { prisma },
+  {
+    logger: loggerOptions(env.LOG_LEVEL, env.NODE_ENV === 'development'),
+  },
+);
+app.addHook('onClose', () => prisma.$disconnect());
 
 const shutdown = async (signal: string) => {
   app.log.info({ signal }, 'shutting down');

@@ -1,3 +1,4 @@
+import { createPrismaClient } from '@finance-os/db';
 import { notFound } from '@finance-os/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildServer } from './server.js';
@@ -6,7 +7,8 @@ describe('api server', () => {
   let app: Awaited<ReturnType<typeof buildServer>>;
 
   beforeAll(async () => {
-    app = await buildServer();
+    // These routes never touch the DB; the client connects lazily and never will.
+    app = await buildServer({ prisma: createPrismaClient('postgresql://unused@127.0.0.1:1/unused') });
     app.get('/boom', async () => {
       throw notFound('Invoice');
     });

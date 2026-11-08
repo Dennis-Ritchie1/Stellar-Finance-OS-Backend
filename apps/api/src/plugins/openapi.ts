@@ -15,6 +15,15 @@ export async function registerOpenApi(app: FastifyInstance): Promise<void> {
         description: 'Business treasury & finance OS on Stellar',
         version: '0.1.0',
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            description: 'Session token from /v1/auth/login or /v1/auth/register',
+          },
+        },
+      },
     },
     transform: jsonSchemaTransform,
   });
