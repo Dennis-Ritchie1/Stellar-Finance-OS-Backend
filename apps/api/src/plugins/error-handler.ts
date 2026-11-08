@@ -7,7 +7,11 @@ export function registerErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler((err, req, reply) => {
     if (hasZodFastifySchemaValidationErrors(err)) {
       return reply.status(400).send({
-        error: { code: 'VALIDATION_FAILED', message: 'Request validation failed', details: err.validation },
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Request validation failed',
+          details: err.validation,
+        },
       });
     }
     if (isAppError(err)) {
@@ -16,6 +20,8 @@ export function registerErrorHandler(app: FastifyInstance): void {
         .send({ error: { code: err.code, message: err.message, details: err.details } });
     }
     req.log.error({ err }, 'unhandled error');
-    return reply.status(500).send({ error: { code: 'INTERNAL', message: 'Internal server error' } });
+    return reply
+      .status(500)
+      .send({ error: { code: 'INTERNAL', message: 'Internal server error' } });
   });
 }
