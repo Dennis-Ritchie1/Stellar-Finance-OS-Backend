@@ -4,7 +4,7 @@ import { sep53Hash, verifySignedMessage } from './signed-message.js';
 
 const kp = Keypair.random();
 const msg = 'finance-os wants you to link this wallet.\nNonce: abc123';
-const signed = (k: Keypair, m: string) => k.sign(sep53Hash(m)).toString('base64');
+const signed = (k: Keypair, m: string) => Buffer.from(k.sign(sep53Hash(m))).toString('base64');
 
 describe('verifySignedMessage', () => {
   it('accepts a SEP-53 signature by the address owner', () => {
@@ -17,7 +17,7 @@ describe('verifySignedMessage', () => {
   });
 
   it('rejects a signature over the raw, unprefixed message', () => {
-    const raw = kp.sign(Buffer.from(msg)).toString('base64');
+    const raw = Buffer.from(kp.sign(Buffer.from(msg))).toString('base64');
     expect(verifySignedMessage(kp.publicKey(), msg, raw)).toBe(false);
   });
 
