@@ -137,6 +137,7 @@ model Organization {
   updatedAt DateTime @updatedAt
   members   Member[]
   treasuryAccounts TreasuryAccount[]
+  clients          Client[]
 
   @@map("organizations")
 }
@@ -172,4 +173,19 @@ model TreasuryAccount {
   @@unique([network, stellarAddress])
   @@index([organizationId])
   @@map("treasury_accounts")
+}
+
+model Client {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  email          String?
+  /// Sender addresses previously seen paying this client's invoices (heuristic matching).
+  knownAddresses String[]     @default([])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@map("clients")
 }
