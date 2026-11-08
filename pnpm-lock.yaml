@@ -277,6 +277,12 @@ importers:
 
   packages/db:
     dependencies:
+      '@finance-os/config':
+        specifier: workspace:*
+        version: link:../config
+      '@finance-os/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@prisma/adapter-pg':
         specifier: 7.10.1
         version: 7.10.1
