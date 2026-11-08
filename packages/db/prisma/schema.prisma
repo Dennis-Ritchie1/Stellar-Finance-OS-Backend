@@ -96,6 +96,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   sessions     Session[]
+  wallets      WalletAddress[]
 
   @@map("users")
 }
@@ -112,4 +113,17 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+/// A Stellar address the user proved ownership of via a signed challenge.
+/// Only public keys are stored — never secret keys (AGENTS.md #1).
+model WalletAddress {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  userId     String   @db.Uuid
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  address    String   @unique
+  verifiedAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("wallet_addresses")
 }
