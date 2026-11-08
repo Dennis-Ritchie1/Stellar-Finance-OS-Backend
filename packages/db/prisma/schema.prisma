@@ -170,6 +170,7 @@ model TreasuryAccount {
   indexerCursor  String?
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  invoices       Invoice[]
 
   @@unique([network, stellarAddress])
   @@index([organizationId])
@@ -212,9 +213,13 @@ model Invoice {
   voidedAt          DateTime?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+  /// Treasury account the invoice is paid into (base G-address for the muxed reference).
+  treasuryAccountId String          @db.Uuid
+  treasuryAccount   TreasuryAccount @relation(fields: [treasuryAccountId], references: [id], onDelete: Restrict)
 
   @@unique([organizationId, number])
   @@index([organizationId, status])
   @@index([clientId])
+  @@index([treasuryAccountId])
   @@map("invoices")
 }
