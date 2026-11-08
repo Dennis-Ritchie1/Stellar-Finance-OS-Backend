@@ -14,6 +14,7 @@ const pairs: [string, Record<string, string>, readonly string[]][] = [
   ['MatchMethod', db.MatchMethod, shared.MatchMethodValues],
   ['MemoType', db.MemoType, shared.MemoTypeValues],
   ['ApprovalDecision', db.ApprovalDecision, shared.ApprovalDecisionValues],
+  ['ExportStatus', db.ExportStatus, shared.ExportStatusValues],
 ];
 
 describe('enum parity between prisma and @finance-os/shared', () => {
