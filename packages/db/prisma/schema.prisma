@@ -68,3 +68,11 @@ enum MatchMethod {
   contract_event
   manual
 }
+
+enum MemoType {
+  none
+  text
+  id
+  hash
+  return
+}
