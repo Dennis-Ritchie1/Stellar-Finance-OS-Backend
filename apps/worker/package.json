@@ -10,5 +10,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@finance-os/config": "workspace:*",
+    "@finance-os/shared": "workspace:*",
+    "pino": "^10.4.0"
   }
 }
