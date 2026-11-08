@@ -12,9 +12,8 @@ describe('seed payment references', () => {
     expect(parsed.id()).toBe('42');
   });
 
-  it('builds short memo text from the invoice number', () => {
-    expect(invoiceMemo('INV-2026-0042')).toBe('INV0042');
-    expect(invoiceMemo('INV-2026-0042').length).toBeLessThanOrEqual(28);
+  it('builds short memo text from the payment ref id', () => {
+    expect(invoiceMemo(42n)).toBe('INV42');
   });
 
   it('creates unguessable, url-safe public tokens', () => {

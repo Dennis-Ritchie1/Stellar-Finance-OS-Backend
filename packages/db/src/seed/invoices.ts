@@ -35,17 +35,19 @@ export async function seedInvoices(tx: Tx, ctx: InvoiceSeedContext): Promise<Map
         dueDate,
         status: inv.status,
         sentAt: inv.status === 'draft' ? null : ctx.now,
-        memo: invoiceMemo(inv.number),
         publicToken: newPublicToken(),
         lineItems: {
           create: lines.map((l) => ({ ...l, organizationId: ctx.organizationId })),
         },
       },
     });
-    // The muxed id is the DB-assigned paymentRefId, so derive the M-address after insert.
+    // Both references derive from the DB-assigned paymentRefId, so set them after insert.
     await tx.invoice.update({
       where: { id: created.id },
-      data: { muxedAddress: deriveMuxedAddress(ctx.treasury.stellarAddress, created.paymentRefId) },
+      data: {
+        muxedAddress: deriveMuxedAddress(ctx.treasury.stellarAddress, created.paymentRefId),
+        memo: invoiceMemo(created.paymentRefId),
+      },
     });
     ids.set(inv.number, created.id);
   }

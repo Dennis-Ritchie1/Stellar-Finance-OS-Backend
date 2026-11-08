@@ -35,7 +35,7 @@ describe('seedDemo', () => {
     const invoices = await db.prisma.invoice.findMany();
     for (const inv of invoices) {
       expect(inv.muxedAddress).toMatch(/^M[A-Z2-7]{68}$/);
-      expect(inv.memo).toMatch(/^INV\d{4}$/);
+      expect(inv.memo).toBe(`INV${inv.paymentRefId}`);
       expect(inv.publicToken).toBeTruthy();
     }
   });
