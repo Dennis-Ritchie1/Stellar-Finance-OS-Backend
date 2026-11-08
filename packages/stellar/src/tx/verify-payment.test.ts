@@ -126,9 +126,10 @@ describe('verifySignedPayment', () => {
       networkPassphrase: Networks.PUBLIC,
       sequence: '1',
     });
+    // No expectedHash: whether it matches depends on timebounds landing in the
+    // same second as `built`. The signature check alone must catch this.
     const res = verifySignedPayment(sign(mainnet.xdr, Networks.PUBLIC), intent, {
       networkPassphrase: passphrase,
-      expectedHash: built.hash,
     });
     expect(!res.ok && res.errors).toEqual([
       'No valid signature from an allowed signer for this network',
