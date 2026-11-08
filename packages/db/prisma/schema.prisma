@@ -139,6 +139,7 @@ model Organization {
   treasuryAccounts TreasuryAccount[]
   clients          Client[]
   invoices         Invoice[]
+  invoiceLineItems InvoiceLineItem[]
 
   @@map("organizations")
 }
@@ -224,6 +225,7 @@ model Invoice {
   memo              String?
   /// Unguessable token for the unauthenticated payment page.
   publicToken       String          @unique
+  lineItems         InvoiceLineItem[]
 
   @@unique([organizationId, number])
   @@unique([treasuryAccountId, memo])
@@ -231,4 +233,21 @@ model Invoice {
   @@index([clientId])
   @@index([treasuryAccountId])
   @@map("invoices")
+}
+
+model InvoiceLineItem {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoiceId      String       @db.Uuid
+  invoice        Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  position       Int
+  description    String
+  quantity       Decimal      @db.Decimal(38, 7)
+  unitPrice      Decimal      @db.Decimal(38, 7)
+  amount         Decimal      @db.Decimal(38, 7)
+
+  @@unique([invoiceId, position])
+  @@index([organizationId])
+  @@map("invoice_line_items")
 }
