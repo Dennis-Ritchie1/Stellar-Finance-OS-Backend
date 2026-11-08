@@ -23,6 +23,11 @@ export function resolveTreasuryAddress(env: Record<string, string | undefined>):
 
 export async function seedTreasuryAccount(tx: Tx, organizationId: string, address: string) {
   return tx.treasuryAccount.create({
-    data: { organizationId, stellarAddress: address, label: 'Main USDC account', network: 'testnet' },
+    data: {
+      organizationId,
+      stellarAddress: address,
+      label: 'Main USDC account',
+      network: 'testnet',
+    },
   });
 }

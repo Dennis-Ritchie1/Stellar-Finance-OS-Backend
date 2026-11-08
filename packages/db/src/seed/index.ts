@@ -21,7 +21,9 @@ try {
     if (result.generatedTreasury) {
       console.log('  (random receive-only address — set SEED_TREASURY_ADDRESS to use your own)');
     }
-    console.log(`Logins (password "${DEMO_PASSWORD}"): ${DEMO_USERS.map((u) => u.email).join(', ')}`);
+    console.log(
+      `Logins (password "${DEMO_PASSWORD}"): ${DEMO_USERS.map((u) => u.email).join(', ')}`,
+    );
   }
 } finally {
   await prisma.$disconnect();

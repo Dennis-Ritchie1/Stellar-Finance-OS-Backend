@@ -7,10 +7,7 @@ export interface SeededOrg {
   membersByRole: Map<string, string[]>;
 }
 
-export async function seedOrganization(
-  tx: Tx,
-  userIds: Map<string, string>,
-): Promise<SeededOrg> {
+export async function seedOrganization(tx: Tx, userIds: Map<string, string>): Promise<SeededOrg> {
   const org = await tx.organization.create({ data: { name: DEMO_ORG.name, slug: DEMO_ORG.slug } });
   const membersByRole = new Map<string, string[]>();
   for (const u of DEMO_USERS) {

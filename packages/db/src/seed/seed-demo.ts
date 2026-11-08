@@ -11,7 +11,12 @@ import { seedVendors } from './vendors.js';
 
 export type SeedResult =
   | { status: 'skipped'; organizationId: string }
-  | { status: 'created'; organizationId: string; treasuryAddress: string; generatedTreasury: boolean };
+  | {
+      status: 'created';
+      organizationId: string;
+      treasuryAddress: string;
+      generatedTreasury: boolean;
+    };
 
 /**
  * Create the demo org and everything under it in one transaction.
@@ -35,12 +40,29 @@ export async function seedDemo(
       const treasury = await seedTreasuryAccount(tx, organizationId, address);
       const clientIds = await seedClients(tx, organizationId);
       const vendorIds = await seedVendors(tx, organizationId);
-      const invoiceIds = await seedInvoices(tx, { organizationId, clientIds, treasury, usdcIssuer, now });
+      const invoiceIds = await seedInvoices(tx, {
+        organizationId,
+        clientIds,
+        treasury,
+        usdcIssuer,
+        now,
+      });
       await seedPartialPayment(tx, { organizationId, treasury, invoiceIds, now });
-      const ctx = { organizationId, membersByRole, vendorIds, treasuryAccountId: treasury.id, usdcIssuer };
+      const ctx = {
+        organizationId,
+        membersByRole,
+        vendorIds,
+        treasuryAccountId: treasury.id,
+        usdcIssuer,
+      };
       await seedApprovalPolicy(tx, ctx);
       await seedPendingPaymentRequest(tx, ctx);
-      return { status: 'created' as const, organizationId, treasuryAddress: address, generatedTreasury: generated };
+      return {
+        status: 'created' as const,
+        organizationId,
+        treasuryAddress: address,
+        generatedTreasury: generated,
+      };
     },
     { timeout: 30_000 },
   );
