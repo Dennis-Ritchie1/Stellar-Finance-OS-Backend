@@ -1,3 +1,4 @@
+import { STROOPS_PER_UNIT } from './constants.js';
 import { fromStroops, toStroops } from './stroops.js';
 
 /** Normalise an amount to 7 decimal places, e.g. "5" -> "5.0000000". */
@@ -30,4 +31,12 @@ export function amountsEqual(a: string, b: string): boolean {
 
 export function isZeroAmount(a: string): boolean {
   return toStroops(a) === 0n;
+}
+
+/**
+ * a × b, exact, truncated (ROUND_DOWN) to 7 decimal places — e.g. quantity × unit price.
+ * Done in integer stroops: (a·10⁷ × b·10⁷) / 10⁷.
+ */
+export function multiplyAmounts(a: string, b: string): string {
+  return fromStroops((toStroops(a) * toStroops(b)) / STROOPS_PER_UNIT);
 }
