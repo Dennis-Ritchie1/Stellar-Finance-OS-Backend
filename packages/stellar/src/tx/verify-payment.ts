@@ -37,8 +37,7 @@ function countValidSignatures(tx: Transaction, signers: string[]): number {
 }
 
 export type VerifyResult =
-  | { ok: true; hash: string; transaction: Transaction }
-  | { ok: false; errors: string[] };
+  { ok: true; hash: string; transaction: Transaction } | { ok: false; errors: string[] };
 
 /**
  * README §7 critical check: re-decode the signed XDR and reject it if

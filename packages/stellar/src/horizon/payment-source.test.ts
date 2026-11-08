@@ -41,9 +41,17 @@ const withToken = (r: HorizonPaymentRecord, token: string) =>
 
 describe('HorizonPaymentSource', () => {
   it('pages oldest-first with joined transactions and returns the next cursor', async () => {
-    const h = fakeHorizon({ pages: [f.usdcToMuxed, f.createAccount, withToken(f.xlmWithTextMemo, '99')] });
+    const h = fakeHorizon({
+      pages: [f.usdcToMuxed, f.createAccount, withToken(f.xlmWithTextMemo, '99')],
+    });
     const page = await new HorizonPaymentSource(h.client).page(f.TREASURY, '10', 50);
-    expect(h.calls).toEqual({ account: f.TREASURY, join: 'transactions', order: 'asc', limit: 50, cursor: '10' });
+    expect(h.calls).toEqual({
+      account: f.TREASURY,
+      join: 'transactions',
+      order: 'asc',
+      limit: 50,
+      cursor: '10',
+    });
     expect(page.payments).toHaveLength(2); // create_account skipped
     expect(page.nextCursor).toBe('99');
   });
@@ -54,7 +62,10 @@ describe('HorizonPaymentSource', () => {
   });
 
   it('resolves account_merge amounts from effects', async () => {
-    const h = fakeHorizon({ pages: [f.merge], effects: [{ type: 'account_debited' }, { type: 'account_credited', amount: '3.5' }] });
+    const h = fakeHorizon({
+      pages: [f.merge],
+      effects: [{ type: 'account_debited' }, { type: 'account_credited', amount: '3.5' }],
+    });
     const page = await new HorizonPaymentSource(h.client).page(f.TREASURY, undefined);
     expect(page.payments[0]).toMatchObject({ operationType: 'account_merge', amount: '3.5000000' });
   });

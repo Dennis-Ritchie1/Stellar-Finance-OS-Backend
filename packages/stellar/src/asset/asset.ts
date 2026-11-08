@@ -19,7 +19,9 @@ export function toSdkAsset(asset: AssetRef): Asset {
 }
 
 export function fromSdkAsset(asset: Asset): AssetRef {
-  return asset.isNative() ? { code: NATIVE_CODE } : { code: asset.getCode(), issuer: asset.getIssuer() };
+  return asset.isNative()
+    ? { code: NATIVE_CODE }
+    : { code: asset.getCode(), issuer: asset.getIssuer() };
 }
 
 /** Same code AND same issuer. A USDC from the wrong issuer is a different asset. */

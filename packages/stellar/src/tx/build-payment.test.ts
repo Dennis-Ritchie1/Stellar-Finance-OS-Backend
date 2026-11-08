@@ -9,13 +9,17 @@ const DEST = Keypair.random().publicKey();
 const ISSUER = Keypair.random().publicKey();
 const opts = { networkPassphrase: Networks.TESTNET, sequence: '100' };
 
-const decode = (xdr: string) =>
-  TransactionBuilder.fromXDR(xdr, Networks.TESTNET) as Transaction;
+const decode = (xdr: string) => TransactionBuilder.fromXDR(xdr, Networks.TESTNET) as Transaction;
 
 describe('buildPaymentTransaction', () => {
   it('builds an unsigned single payment with the exact amount and asset', () => {
     const built = buildPaymentTransaction(
-      { source: SOURCE, destination: DEST, asset: { code: 'USDC', issuer: ISSUER }, amount: '125.5' },
+      {
+        source: SOURCE,
+        destination: DEST,
+        asset: { code: 'USDC', issuer: ISSUER },
+        amount: '125.5',
+      },
       opts,
     );
     const tx = decode(built.xdr);

@@ -15,8 +15,7 @@ export class HorizonPaymentSource implements PaymentSource {
     if (record.type !== 'account_merge') return undefined;
     const effects = await this.horizon.server.effects().forOperation(record.id).call();
     const credited = effects.records.find((e) => e.type === 'account_credited') as
-      | { amount?: string }
-      | undefined;
+      { amount?: string } | undefined;
     return credited?.amount;
   }
 

@@ -116,7 +116,9 @@ describe('verifySignedPayment', () => {
       networkPassphrase: passphrase,
       expectedHash: built.hash,
     });
-    expect(!res.ok && res.errors).toEqual(['Transaction differs from the one built for this request']);
+    expect(!res.ok && res.errors).toEqual([
+      'Transaction differs from the one built for this request',
+    ]);
   });
 
   it('rejects XDR for another network and garbage input', () => {

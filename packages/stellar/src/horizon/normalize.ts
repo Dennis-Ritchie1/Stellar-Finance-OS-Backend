@@ -5,7 +5,11 @@ import type { ObservedPayment } from '../payment-source.js';
 import { parseOperationId } from './operation-id.js';
 import type { AccountMergeRecord, HorizonPaymentRecord, PaymentRecord } from './records.js';
 
-const PAYMENT_TYPES = new Set(['payment', 'path_payment_strict_receive', 'path_payment_strict_send']);
+const PAYMENT_TYPES = new Set([
+  'payment',
+  'path_payment_strict_receive',
+  'path_payment_strict_send',
+]);
 
 function memoOf(record: HorizonPaymentRecord): { memo?: string; memoType: MemoType } {
   const tx = record.transaction;

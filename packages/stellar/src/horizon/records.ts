@@ -51,7 +51,4 @@ export interface CreateAccountRecord extends BaseRecord {
 }
 
 export type HorizonPaymentRecord =
-  | PaymentRecord
-  | AccountMergeRecord
-  | CreateAccountRecord
-  | (BaseRecord & { type: string });
+  PaymentRecord | AccountMergeRecord | CreateAccountRecord | (BaseRecord & { type: string });

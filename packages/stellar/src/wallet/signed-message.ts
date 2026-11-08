@@ -5,7 +5,9 @@ import { Keypair } from '@stellar/stellar-sdk';
 const SEP53_PREFIX = 'Stellar Signed Message:\n';
 
 export function sep53Hash(message: string): Buffer {
-  return createHash('sha256').update(SEP53_PREFIX + message, 'utf8').digest();
+  return createHash('sha256')
+    .update(SEP53_PREFIX + message, 'utf8')
+    .digest();
 }
 
 /**

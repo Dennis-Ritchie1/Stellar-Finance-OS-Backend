@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseOperationId } from './operation-id.js';
 
-const toid = (ledger: bigint, tx: bigint, op: bigint) => ((ledger << 32n) | (tx << 12n) | op).toString();
+const toid = (ledger: bigint, tx: bigint, op: bigint) =>
+  ((ledger << 32n) | (tx << 12n) | op).toString();
 
 describe('parseOperationId', () => {
   it('extracts ledger and zero-based operation index', () => {

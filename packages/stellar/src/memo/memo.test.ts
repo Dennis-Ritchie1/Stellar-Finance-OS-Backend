@@ -33,7 +33,9 @@ describe('memo helpers', () => {
   });
 
   it('compares hash memos case-insensitively but types strictly', () => {
-    expect(memosEqual({ type: 'hash', value: HASH.toUpperCase() }, { type: 'hash', value: HASH })).toBe(true);
+    expect(
+      memosEqual({ type: 'hash', value: HASH.toUpperCase() }, { type: 'hash', value: HASH }),
+    ).toBe(true);
     expect(memosEqual({ type: 'text', value: '1' }, { type: 'id', value: '1' })).toBe(false);
   });
 });

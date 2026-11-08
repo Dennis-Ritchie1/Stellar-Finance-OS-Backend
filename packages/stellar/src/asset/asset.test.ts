@@ -22,8 +22,12 @@ describe('asset helpers', () => {
   });
 
   it('treats the same code from a different issuer as a different asset', () => {
-    expect(assetsEqual({ code: 'USDC', issuer: ISSUER }, { code: 'USDC', issuer: ISSUER })).toBe(true);
-    expect(assetsEqual({ code: 'USDC', issuer: ISSUER }, { code: 'USDC', issuer: OTHER })).toBe(false);
+    expect(assetsEqual({ code: 'USDC', issuer: ISSUER }, { code: 'USDC', issuer: ISSUER })).toBe(
+      true,
+    );
+    expect(assetsEqual({ code: 'USDC', issuer: ISSUER }, { code: 'USDC', issuer: OTHER })).toBe(
+      false,
+    );
     expect(assetsEqual({ code: 'XLM', issuer: null }, { code: 'XLM' })).toBe(true);
   });
 
