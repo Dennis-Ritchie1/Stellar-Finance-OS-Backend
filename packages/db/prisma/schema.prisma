@@ -136,6 +136,7 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   members   Member[]
+  treasuryAccounts TreasuryAccount[]
 
   @@map("organizations")
 }
@@ -153,4 +154,22 @@ model Member {
   @@unique([organizationId, userId])
   @@index([userId])
   @@map("members")
+}
+
+/// A Stellar G-address the org controls, watched by the indexer.
+model TreasuryAccount {
+  id             String         @id @default(uuid(7)) @db.Uuid
+  organizationId String         @db.Uuid
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stellarAddress String
+  label          String
+  network        StellarNetwork
+  /// Last processed Horizon paging token. Indexer resumes from here.
+  indexerCursor  String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@unique([network, stellarAddress])
+  @@index([organizationId])
+  @@map("treasury_accounts")
 }
