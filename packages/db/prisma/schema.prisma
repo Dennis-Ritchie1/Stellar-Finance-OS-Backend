@@ -263,6 +263,10 @@ model Vendor {
   stellarAddress String
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+  /// Some exchanges require a memo on deposits.
+  memoRequired   Boolean      @default(false)
+  memo           String?
+  memoType       MemoType     @default(none)
 
   @@index([organizationId])
   @@map("vendors")
