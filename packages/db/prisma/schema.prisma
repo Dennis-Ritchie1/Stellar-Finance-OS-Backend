@@ -140,6 +140,7 @@ model Organization {
   clients          Client[]
   invoices         Invoice[]
   invoiceLineItems InvoiceLineItem[]
+  vendors          Vendor[]
 
   @@map("organizations")
 }
@@ -250,4 +251,19 @@ model InvoiceLineItem {
   @@unique([invoiceId, position])
   @@index([organizationId])
   @@map("invoice_line_items")
+}
+
+model Vendor {
+  id             String       @id @default(uuid(7)) @db.Uuid
+  organizationId String       @db.Uuid
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  email          String?
+  /// Payout address (G... or M...).
+  stellarAddress String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
+  @@map("vendors")
 }
