@@ -37,7 +37,10 @@ export default tseslint.config(
         {
           patterns: [
             { group: ['@prisma/*', '@finance-os/db'], message: 'matching must not touch the DB.' },
-            { group: ['@stellar/stellar-sdk', 'node:http', 'node:https'], message: 'matching must not do I/O.' },
+            {
+              group: ['@stellar/stellar-sdk', 'node:http', 'node:https'],
+              message: 'matching must not do I/O.',
+            },
           ],
         },
       ],
