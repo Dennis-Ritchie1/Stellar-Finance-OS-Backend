@@ -47,3 +47,8 @@ enum TransactionDirection {
   in
   out
 }
+
+enum TransactionStatus {
+  success
+  failed
+}
