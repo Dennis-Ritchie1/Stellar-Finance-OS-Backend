@@ -230,6 +230,7 @@ WEB_APP_URL=http://localhost:5173
 
 ```bash
 pnpm install
+cp .env.example .env                 # then adjust values
 docker compose up -d                 # Postgres + Redis
 pnpm db:migrate && pnpm db:seed      # seed creates a demo org with testnet accounts
 pnpm dev                             # runs api, indexer, worker via turbo
