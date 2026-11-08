@@ -1,4 +1,5 @@
 import { EnvSchema, type Env } from './env.schema.js';
+import { findEnvFile } from './find-env-file.js';
 
 export class EnvValidationError extends Error {
   constructor(readonly issues: string[]) {
@@ -24,7 +25,8 @@ let cached: Env | undefined;
 export async function loadEnv(): Promise<Env> {
   if (cached) return cached;
   const { config } = await import('dotenv');
-  config({ quiet: true });
+  const path = findEnvFile();
+  if (path) config({ path, quiet: true });
   cached = parseEnv(process.env);
   return cached;
 }
