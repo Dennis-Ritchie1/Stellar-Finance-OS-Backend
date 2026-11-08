@@ -146,6 +146,7 @@ model Organization {
   approvalPolicies ApprovalPolicy[]
   transactions     Transaction[]
   paymentMatches   PaymentMatch[]
+  exports          Export[]
 
   @@map("organizations")
 }
@@ -163,6 +164,7 @@ model Member {
   approvals              Approval[]
   approverOf             ApprovalPolicyApprover[]
   manualMatches          PaymentMatch[]
+  exports                Export[]
 
   @@unique([organizationId, userId])
   @@index([userId])
@@ -429,4 +431,26 @@ model PaymentMatch {
   @@index([invoiceId])
   @@index([paymentRequestId])
   @@map("payment_matches")
+}
+
+/// A generated reconciliation file (CSV in MVP).
+model Export {
+  id                    String       @id @default(uuid(7)) @db.Uuid
+  organizationId        String       @db.Uuid
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type                  String       @default("reconciliation")
+  format                String       @default("csv")
+  from                  DateTime
+  to                    DateTime
+  status                ExportStatus @default(pending)
+  /// Storage key of the generated file once ready.
+  fileKey               String?
+  rowCount              Int?
+  requestedByMemberId   String       @db.Uuid
+  requestedBy           Member       @relation(fields: [requestedByMemberId], references: [id], onDelete: Restrict)
+  createdAt             DateTime     @default(now())
+  completedAt           DateTime?
+
+  @@index([organizationId, createdAt])
+  @@map("exports")
 }
