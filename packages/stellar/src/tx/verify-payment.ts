@@ -29,7 +29,9 @@ function countValidSignatures(tx: Transaction, signers: string[]): number {
   const keys = signers.map((s) => Keypair.fromPublicKey(s));
   return tx.signatures.filter((sig) =>
     keys.some(
-      (k) => k.signatureHint().equals(sig.hint()) && k.verify(hash, sig.signature()),
+      (k) =>
+        Buffer.from(k.signatureHint()).equals(sig.hint.toBytes()) &&
+        k.verify(hash, sig.signature.toBytes()),
     ),
   ).length;
 }
@@ -60,7 +62,7 @@ export function verifySignedPayment(
   }
   const tx = decoded;
   const errors: string[] = [];
-  const hash = tx.hash().toString('hex');
+  const hash = Buffer.from(tx.hash()).toString('hex');
 
   if (opts.expectedHash && hash !== opts.expectedHash.toLowerCase()) {
     errors.push('Transaction differs from the one built for this request');
