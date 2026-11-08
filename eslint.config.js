@@ -28,5 +28,20 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // AGENTS.md rule 4: the matching engine stays pure.
+    files: ['packages/matching/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['@prisma/*', '@finance-os/db'], message: 'matching must not touch the DB.' },
+            { group: ['@stellar/stellar-sdk', 'node:http', 'node:https'], message: 'matching must not do I/O.' },
+          ],
+        },
+      ],
+    },
+  },
   prettier,
 );
