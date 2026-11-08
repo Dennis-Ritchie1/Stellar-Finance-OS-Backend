@@ -296,6 +296,12 @@ model PaymentRequest {
   /// Account the payment is sent from.
   sourceTreasuryAccountId String          @db.Uuid
   sourceTreasuryAccount   TreasuryAccount @relation(fields: [sourceTreasuryAccountId], references: [id], onDelete: Restrict)
+  /// Unsigned XDR built after approval. The user signs it in their wallet.
+  unsignedXdr       String?
+  txHash            String?              @unique
+  submittedAt       DateTime?
+  settledAt         DateTime?
+  failureReason     String?
 
   @@index([organizationId, status])
   @@index([vendorId])
