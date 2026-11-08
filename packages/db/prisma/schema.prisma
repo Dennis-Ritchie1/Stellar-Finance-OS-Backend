@@ -145,6 +145,7 @@ model Organization {
   approvals        Approval[]
   approvalPolicies ApprovalPolicy[]
   transactions     Transaction[]
+  paymentMatches   PaymentMatch[]
 
   @@map("organizations")
 }
@@ -161,6 +162,7 @@ model Member {
   paymentRequestsCreated PaymentRequest[] @relation("PaymentRequestCreator")
   approvals              Approval[]
   approverOf             ApprovalPolicyApprover[]
+  manualMatches          PaymentMatch[]
 
   @@unique([organizationId, userId])
   @@index([userId])
@@ -236,6 +238,7 @@ model Invoice {
   /// Unguessable token for the unauthenticated payment page.
   publicToken       String          @unique
   lineItems         InvoiceLineItem[]
+  matches           PaymentMatch[]
 
   @@unique([organizationId, number])
   @@unique([treasuryAccountId, memo])
@@ -309,6 +312,7 @@ model PaymentRequest {
   settledAt         DateTime?
   failureReason     String?
   approvals         Approval[]
+  matches           PaymentMatch[]
 
   @@index([organizationId, status])
   @@index([vendorId])
@@ -391,10 +395,38 @@ model Transaction {
   /// uint64 muxed id as a decimal string (exceeds JS safe integer range).
   muxedId           String?
   ledger            Int
+  matches           PaymentMatch[]
 
   @@unique([txHash, operationIndex])
   @@index([organizationId, createdAt])
   @@index([treasuryAccountId])
   @@index([muxedId])
   @@map("transactions")
+}
+
+/// Links a transaction to the invoice or payment request it settles.
+/// Exactly one of invoiceId / paymentRequestId is set (CHECK in migration).
+model PaymentMatch {
+  id                String          @id @default(uuid(7)) @db.Uuid
+  organizationId    String          @db.Uuid
+  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  transactionId     String          @db.Uuid
+  transaction       Transaction     @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  invoiceId         String?         @db.Uuid
+  invoice           Invoice?        @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentRequestId  String?         @db.Uuid
+  paymentRequest    PaymentRequest? @relation(fields: [paymentRequestId], references: [id], onDelete: Cascade)
+  amount            Decimal         @db.Decimal(38, 7)
+  method            MatchMethod
+  /// 0..1 — 1 for deterministic (muxed/memo/contract/manual) matches.
+  confidence        Decimal         @db.Decimal(5, 4)
+  matchedByMemberId String?         @db.Uuid
+  matchedBy         Member?         @relation(fields: [matchedByMemberId], references: [id], onDelete: SetNull)
+  createdAt         DateTime        @default(now())
+
+  @@index([organizationId])
+  @@index([transactionId])
+  @@index([invoiceId])
+  @@index([paymentRequestId])
+  @@map("payment_matches")
 }
