@@ -15,5 +15,8 @@
     "@finance-os/config": "workspace:*",
     "@finance-os/shared": "workspace:*",
     "pino": "^10.4.0"
+  },
+  "devDependencies": {
+    "pino-pretty": "^13.2.0"
   }
 }
