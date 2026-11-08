@@ -217,6 +217,9 @@ importers:
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@finance-os/stellar':
+        specifier: workspace:*
+        version: link:../../packages/stellar
       argon2:
         specifier: ^0.45.2
         version: 0.45.2
@@ -233,6 +236,9 @@ importers:
         specifier: ^4.6.7
         version: 4.6.7
     devDependencies:
+      '@stellar/stellar-sdk':
+        specifier: ^17.4.0
+        version: 17.4.0(debug@4.4.3)
       pino-pretty:
         specifier: ^13.2.0
         version: 13.2.0
