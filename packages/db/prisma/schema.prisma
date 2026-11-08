@@ -175,6 +175,7 @@ model TreasuryAccount {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   invoices       Invoice[]
+  paymentRequests PaymentRequest[]
 
   @@unique([network, stellarAddress])
   @@index([organizationId])
@@ -292,6 +293,9 @@ model PaymentRequest {
   updatedAt         DateTime             @updatedAt
   createdByMemberId String               @db.Uuid
   createdBy         Member               @relation("PaymentRequestCreator", fields: [createdByMemberId], references: [id], onDelete: Restrict)
+  /// Account the payment is sent from.
+  sourceTreasuryAccountId String          @db.Uuid
+  sourceTreasuryAccount   TreasuryAccount @relation(fields: [sourceTreasuryAccountId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, status])
   @@index([vendorId])
