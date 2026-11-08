@@ -61,3 +61,10 @@ enum OperationType {
   account_merge
   contract_transfer
 }
+
+enum MatchMethod {
+  muxed
+  memo
+  contract_event
+  manual
+}
