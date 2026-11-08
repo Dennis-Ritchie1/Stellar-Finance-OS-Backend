@@ -142,6 +142,7 @@ model Organization {
   invoiceLineItems InvoiceLineItem[]
   vendors          Vendor[]
   paymentRequests  PaymentRequest[]
+  approvals        Approval[]
 
   @@map("organizations")
 }
@@ -156,6 +157,7 @@ model Member {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   paymentRequestsCreated PaymentRequest[] @relation("PaymentRequestCreator")
+  approvals              Approval[]
 
   @@unique([organizationId, userId])
   @@index([userId])
@@ -302,8 +304,27 @@ model PaymentRequest {
   submittedAt       DateTime?
   settledAt         DateTime?
   failureReason     String?
+  approvals         Approval[]
 
   @@index([organizationId, status])
   @@index([vendorId])
   @@map("payment_requests")
+}
+
+/// One approver's decision on a payment request (off-chain M-of-N in MVP).
+model Approval {
+  id               String           @id @default(uuid(7)) @db.Uuid
+  organizationId   String           @db.Uuid
+  organization     Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  paymentRequestId String           @db.Uuid
+  paymentRequest   PaymentRequest   @relation(fields: [paymentRequestId], references: [id], onDelete: Cascade)
+  memberId         String           @db.Uuid
+  member           Member           @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  decision         ApprovalDecision
+  comment          String?
+  createdAt        DateTime         @default(now())
+
+  @@unique([paymentRequestId, memberId])
+  @@index([organizationId])
+  @@map("approvals")
 }
