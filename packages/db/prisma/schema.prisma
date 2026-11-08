@@ -89,12 +89,12 @@ enum ExportStatus {
 }
 
 model User {
-  id           String   @id @default(uuid(7)) @db.Uuid
-  email        String   @unique
+  id           String          @id @default(uuid(7)) @db.Uuid
+  email        String          @unique
   passwordHash String
   name         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
   sessions     Session[]
   wallets      WalletAddress[]
   memberships  Member[]
@@ -130,12 +130,12 @@ model WalletAddress {
 }
 
 model Organization {
-  id        String   @id @default(uuid(7)) @db.Uuid
-  name      String
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  members   Member[]
+  id               String            @id @default(uuid(7)) @db.Uuid
+  name             String
+  slug             String            @unique
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  members          Member[]
   treasuryAccounts TreasuryAccount[]
   clients          Client[]
   invoices         Invoice[]
@@ -152,15 +152,15 @@ model Organization {
 }
 
 model Member {
-  id             String       @id @default(uuid(7)) @db.Uuid
-  organizationId String       @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String       @db.Uuid
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           MemberRole
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  paymentRequestsCreated PaymentRequest[] @relation("PaymentRequestCreator")
+  id                     String                   @id @default(uuid(7)) @db.Uuid
+  organizationId         String                   @db.Uuid
+  organization           Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId                 String                   @db.Uuid
+  user                   User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role                   MemberRole
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  paymentRequestsCreated PaymentRequest[]         @relation("PaymentRequestCreator")
   approvals              Approval[]
   approverOf             ApprovalPolicyApprover[]
   manualMatches          PaymentMatch[]
@@ -173,17 +173,17 @@ model Member {
 
 /// A Stellar G-address the org controls, watched by the indexer.
 model TreasuryAccount {
-  id             String         @id @default(uuid(7)) @db.Uuid
-  organizationId String         @db.Uuid
-  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  stellarAddress String
-  label          String
-  network        StellarNetwork
+  id              String           @id @default(uuid(7)) @db.Uuid
+  organizationId  String           @db.Uuid
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  stellarAddress  String
+  label           String
+  network         StellarNetwork
   /// Last processed Horizon paging token. Indexer resumes from here.
-  indexerCursor  String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  invoices       Invoice[]
+  indexerCursor   String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  invoices        Invoice[]
   paymentRequests PaymentRequest[]
   transactions    Transaction[]
 
@@ -209,36 +209,36 @@ model Client {
 }
 
 model Invoice {
-  id                String          @id @default(uuid(7)) @db.Uuid
-  organizationId    String          @db.Uuid
-  organization      Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  clientId          String          @db.Uuid
-  client            Client          @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  id                String            @id @default(uuid(7)) @db.Uuid
+  organizationId    String            @db.Uuid
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientId          String            @db.Uuid
+  client            Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
   /// Human number, e.g. INV-2026-0042. Unique per org.
   number            String
   assetCode         String
   assetIssuer       String?
-  amount            Decimal         @db.Decimal(38, 7)
-  amountPaid        Decimal         @default(0) @db.Decimal(38, 7)
-  dueDate           DateTime        @db.Date
-  status            InvoiceStatus   @default(draft)
+  amount            Decimal           @db.Decimal(38, 7)
+  amountPaid        Decimal           @default(0) @db.Decimal(38, 7)
+  dueDate           DateTime          @db.Date
+  status            InvoiceStatus     @default(draft)
   notes             String?
   sentAt            DateTime?
   paidAt            DateTime?
   voidedAt          DateTime?
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
   /// Treasury account the invoice is paid into (base G-address for the muxed reference).
-  treasuryAccountId String          @db.Uuid
-  treasuryAccount   TreasuryAccount @relation(fields: [treasuryAccountId], references: [id], onDelete: Restrict)
+  treasuryAccountId String            @db.Uuid
+  treasuryAccount   TreasuryAccount   @relation(fields: [treasuryAccountId], references: [id], onDelete: Restrict)
   /// Globally unique numeric id used as the muxed-account id (uint64) — README §5.1.
-  paymentRefId      BigInt          @unique @default(autoincrement())
+  paymentRefId      BigInt            @unique @default(autoincrement())
   /// M... address derived from the treasury G-address + paymentRefId.
-  muxedAddress      String?         @unique
+  muxedAddress      String?           @unique
   /// Memo fallback for wallets without muxed support (e.g. INV0042) — README §5.2.
   memo              String?
   /// Unguessable token for the unauthenticated payment page.
-  publicToken       String          @unique
+  publicToken       String            @unique
   lineItems         InvoiceLineItem[]
   matches           PaymentMatch[]
 
@@ -268,19 +268,19 @@ model InvoiceLineItem {
 }
 
 model Vendor {
-  id             String       @id @default(uuid(7)) @db.Uuid
-  organizationId String       @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  name           String
-  email          String?
+  id              String           @id @default(uuid(7)) @db.Uuid
+  organizationId  String           @db.Uuid
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name            String
+  email           String?
   /// Payout address (G... or M...).
-  stellarAddress String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  stellarAddress  String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   /// Some exchanges require a memo on deposits.
-  memoRequired   Boolean      @default(false)
-  memo           String?
-  memoType       MemoType     @default(none)
+  memoRequired    Boolean          @default(false)
+  memo            String?
+  memoType        MemoType         @default(none)
   paymentRequests PaymentRequest[]
 
   @@index([organizationId])
@@ -288,33 +288,33 @@ model Vendor {
 }
 
 model PaymentRequest {
-  id                String               @id @default(uuid(7)) @db.Uuid
-  organizationId    String               @db.Uuid
-  organization      Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  vendorId          String               @db.Uuid
-  vendor            Vendor               @relation(fields: [vendorId], references: [id], onDelete: Restrict)
-  assetCode         String
-  assetIssuer       String?
-  amount            Decimal              @db.Decimal(38, 7)
-  reason            String
+  id                      String               @id @default(uuid(7)) @db.Uuid
+  organizationId          String               @db.Uuid
+  organization            Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  vendorId                String               @db.Uuid
+  vendor                  Vendor               @relation(fields: [vendorId], references: [id], onDelete: Restrict)
+  assetCode               String
+  assetIssuer             String?
+  amount                  Decimal              @db.Decimal(38, 7)
+  reason                  String
   /// Attachment metadata: [{ name, url, contentType }].
-  attachments       Json                 @default("[]")
-  status            PaymentRequestStatus @default(draft)
-  createdAt         DateTime             @default(now())
-  updatedAt         DateTime             @updatedAt
-  createdByMemberId String               @db.Uuid
-  createdBy         Member               @relation("PaymentRequestCreator", fields: [createdByMemberId], references: [id], onDelete: Restrict)
+  attachments             Json                 @default("[]")
+  status                  PaymentRequestStatus @default(draft)
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+  createdByMemberId       String               @db.Uuid
+  createdBy               Member               @relation("PaymentRequestCreator", fields: [createdByMemberId], references: [id], onDelete: Restrict)
   /// Account the payment is sent from.
-  sourceTreasuryAccountId String          @db.Uuid
-  sourceTreasuryAccount   TreasuryAccount @relation(fields: [sourceTreasuryAccountId], references: [id], onDelete: Restrict)
+  sourceTreasuryAccountId String               @db.Uuid
+  sourceTreasuryAccount   TreasuryAccount      @relation(fields: [sourceTreasuryAccountId], references: [id], onDelete: Restrict)
   /// Unsigned XDR built after approval. The user signs it in their wallet.
-  unsignedXdr       String?
-  txHash            String?              @unique
-  submittedAt       DateTime?
-  settledAt         DateTime?
-  failureReason     String?
-  approvals         Approval[]
-  matches           PaymentMatch[]
+  unsignedXdr             String?
+  txHash                  String?              @unique
+  submittedAt             DateTime?
+  settledAt               DateTime?
+  failureReason           String?
+  approvals               Approval[]
+  matches                 PaymentMatch[]
 
   @@index([organizationId, status])
   @@index([vendorId])
@@ -342,16 +342,16 @@ model Approval {
 /// M-of-N rule: `threshold` approvals required from the listed approvers,
 /// optionally only for payments above `amountAbove`.
 model ApprovalPolicy {
-  id             String       @id @default(uuid(7)) @db.Uuid
-  organizationId String       @db.Uuid
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  id             String                   @id @default(uuid(7)) @db.Uuid
+  organizationId String                   @db.Uuid
+  organization   Organization             @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   name           String
   threshold      Int
-  amountAbove    Decimal?     @db.Decimal(38, 7)
+  amountAbove    Decimal?                 @db.Decimal(38, 7)
   /// Asset the amountAbove rule applies to; null = any asset.
   assetCode      String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
   approvers      ApprovalPolicyApprover[]
 
   @@index([organizationId])
@@ -435,21 +435,21 @@ model PaymentMatch {
 
 /// A generated reconciliation file (CSV in MVP).
 model Export {
-  id                    String       @id @default(uuid(7)) @db.Uuid
-  organizationId        String       @db.Uuid
-  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  type                  String       @default("reconciliation")
-  format                String       @default("csv")
-  from                  DateTime
-  to                    DateTime
-  status                ExportStatus @default(pending)
+  id                  String       @id @default(uuid(7)) @db.Uuid
+  organizationId      String       @db.Uuid
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  type                String       @default("reconciliation")
+  format              String       @default("csv")
+  from                DateTime
+  to                  DateTime
+  status              ExportStatus @default(pending)
   /// Storage key of the generated file once ready.
-  fileKey               String?
-  rowCount              Int?
-  requestedByMemberId   String       @db.Uuid
-  requestedBy           Member       @relation(fields: [requestedByMemberId], references: [id], onDelete: Restrict)
-  createdAt             DateTime     @default(now())
-  completedAt           DateTime?
+  fileKey             String?
+  rowCount            Int?
+  requestedByMemberId String       @db.Uuid
+  requestedBy         Member       @relation(fields: [requestedByMemberId], references: [id], onDelete: Restrict)
+  createdAt           DateTime     @default(now())
+  completedAt         DateTime?
 
   @@index([organizationId, createdAt])
   @@map("exports")
