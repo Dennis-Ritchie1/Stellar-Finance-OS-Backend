@@ -16,7 +16,7 @@
     },
     "lint": {},
     "test": {
-      "outputs": ["coverage/**"]
+      "outputs": []
     },
     "clean": {
       "cache": false
