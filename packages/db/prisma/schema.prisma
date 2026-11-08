@@ -381,6 +381,11 @@ model Transaction {
   /// Ledger close time.
   createdAt         DateTime
   indexedAt         DateTime             @default(now())
+  from              String
+  to                String
+  assetCode         String
+  assetIssuer       String?
+  amount            Decimal              @db.Decimal(38, 7)
 
   @@unique([txHash, operationIndex])
   @@index([organizationId, createdAt])
