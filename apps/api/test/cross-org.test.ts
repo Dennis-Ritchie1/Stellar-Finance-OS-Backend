@@ -1,5 +1,11 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { bearer, orgWithAllRoles, startHarness, type Harness } from './harness.js';
+import {
+  bearer,
+  createTreasury,
+  orgWithAllRoles,
+  startHarness,
+  type Harness,
+} from './harness.js';
 
 /**
  * AGENTS.md rule 3: every org-scoped route must refuse callers from another
@@ -9,11 +15,14 @@ describe('cross-org access', () => {
   let h: Harness;
   let a: Awaited<ReturnType<typeof orgWithAllRoles>>;
   let b: Awaited<ReturnType<typeof orgWithAllRoles>>;
+  /** Resources owned by org B. */
+  const bIds = {} as { treasury: string };
 
   beforeAll(async () => {
     h = await startHarness();
     a = await orgWithAllRoles(h.app);
     b = await orgWithAllRoles(h.app);
+    bIds.treasury = (await createTreasury(h.app, b.org.id, b.users.owner.token)).id;
   });
   afterAll(() => h.close());
 
@@ -44,6 +53,18 @@ describe('cross-org access', () => {
     const org = await h.db.prisma.organization.findUniqueOrThrow({ where: { id: b.org.id } });
     expect(org.name).not.toBe('pwned');
     expect(await h.db.prisma.member.count({ where: { organizationId: b.org.id } })).toBe(5);
+  });
+
+  it("cannot reach another org's treasury account through its own org id", async () => {
+    const own = `/v1/orgs/${a.org.id}/treasury-accounts/${bIds.treasury}`;
+    const token = bearer(a.users.owner.token);
+    for (const res of await Promise.all([
+      h.app.inject({ method: 'GET', url: own, headers: token }),
+      h.app.inject({ method: 'PATCH', url: own, headers: token, payload: { label: 'pwned' } }),
+      h.app.inject({ method: 'DELETE', url: own, headers: token }),
+    ])) {
+      expect(res.statusCode).toBe(404);
+    }
   });
 
   it("cannot reach another org's member through its own org id", async () => {

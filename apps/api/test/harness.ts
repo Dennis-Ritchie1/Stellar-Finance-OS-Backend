@@ -96,3 +96,18 @@ export async function orgWithAllRoles(app: App) {
   }
   return { org, users, memberIds };
 }
+
+/** POST a resource and return its JSON, failing loudly on a non-201. */
+export async function createResource(app: App, url: string, token: string, payload: object) {
+  const res = await app.inject({ method: 'POST', url, headers: bearer(token), payload });
+  if (res.statusCode !== 201) throw new Error(`POST ${url} failed: ${res.statusCode} ${res.body}`);
+  return res.json();
+}
+
+export async function createTreasury(app: App, orgId: string, token: string) {
+  const { Keypair } = await import('@stellar/stellar-sdk');
+  return createResource(app, `/v1/orgs/${orgId}/treasury-accounts`, token, {
+    stellarAddress: Keypair.random().publicKey(),
+    label: 'Treasury',
+  }) as Promise<{ id: string; stellarAddress: string }>;
+}
