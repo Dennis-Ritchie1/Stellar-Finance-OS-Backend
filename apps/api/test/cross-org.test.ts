@@ -1,11 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import {
-  bearer,
-  createTreasury,
-  orgWithAllRoles,
-  startHarness,
-  type Harness,
-} from './harness.js';
+import { bearer, createTreasury, orgWithAllRoles, startHarness, type Harness } from './harness.js';
 
 /**
  * AGENTS.md rule 3: every org-scoped route must refuse callers from another
