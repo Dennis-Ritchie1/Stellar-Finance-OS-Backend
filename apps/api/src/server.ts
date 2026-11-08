@@ -10,11 +10,13 @@ import { registerErrorHandler } from './plugins/error-handler.js';
 import { registerOpenApi } from './plugins/openapi.js';
 import { registerPrisma } from './plugins/prisma.js';
 import { registerSecretGuard } from './plugins/secret-guard.js';
+import { registerStellar, type StellarContext } from './plugins/stellar.js';
 import { healthRoutes } from './routes/health.js';
 import { v1Routes } from './routes/v1.js';
 
 export interface ServerDeps {
   prisma: PrismaClient;
+  stellar: StellarContext;
   /** Session lifetime; defaults to 30 days. */
   sessionTtlMs?: number;
 }
@@ -25,6 +27,7 @@ export async function buildServer(deps: ServerDeps, opts: FastifyServerOptions =
   app.setSerializerCompiler(serializerCompiler);
 
   registerPrisma(app, deps.prisma);
+  registerStellar(app, deps.stellar);
   registerErrorHandler(app);
   registerSecretGuard(app);
   registerAuth(app);

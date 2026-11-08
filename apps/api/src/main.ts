@@ -1,5 +1,6 @@
-import { assertNetworkAllowed, loadEnv } from '@finance-os/config';
+import { assertNetworkAllowed, getAssets, getNetworkConfig, loadEnv } from '@finance-os/config';
 import { createPrismaClient } from '@finance-os/db';
+import { HorizonClient } from '@finance-os/stellar';
 import { loggerOptions } from './logger.js';
 import { buildServer } from './server.js';
 
@@ -7,8 +8,17 @@ const env = await loadEnv();
 assertNetworkAllowed(env);
 
 const prisma = createPrismaClient(env.DATABASE_URL);
+const { passphrase } = getNetworkConfig(env.STELLAR_NETWORK);
 const app = await buildServer(
-  { prisma },
+  {
+    prisma,
+    stellar: {
+      network: env.STELLAR_NETWORK,
+      networkPassphrase: passphrase,
+      assets: getAssets(env.STELLAR_NETWORK, { usdcIssuer: env.USDC_ISSUER || undefined }),
+      gateway: new HorizonClient(env.HORIZON_URL, passphrase),
+    },
+  },
   {
     logger: loggerOptions(env.LOG_LEVEL, env.NODE_ENV === 'development'),
   },
