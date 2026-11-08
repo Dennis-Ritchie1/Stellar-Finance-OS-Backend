@@ -13,6 +13,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@finance-os/shared": "workspace:*"
+    "@finance-os/config": "workspace:*",
+    "@finance-os/shared": "workspace:*",
+    "@stellar/stellar-sdk": "^17.4.0"
   }
 }

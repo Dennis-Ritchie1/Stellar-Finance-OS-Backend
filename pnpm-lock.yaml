@@ -335,9 +335,15 @@ importers:
 
   packages/stellar:
     dependencies:
+      '@finance-os/config':
+        specifier: workspace:*
+        version: link:../config
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../shared
+      '@stellar/stellar-sdk':
+        specifier: ^17.4.0
+        version: 17.4.0(debug@4.4.3)
 
 packages:
 
