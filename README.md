@@ -238,7 +238,7 @@ pnpm dev                             # runs api, indexer, worker via turbo
 
 Use Friendbot to fund testnet accounts.
 
-> `pnpm db:migrate` / `pnpm db:seed` arrive with build-order task 3.
+> The seed creates the `demo` org with six logins (password `demo-password`), a testnet treasury account, invoices, vendors and a pending payment request. Set `SEED_TREASURY_ADDRESS` to a testnet G-address you control, otherwise a random receive-only address is used.
 
 ### Quality gate
 
