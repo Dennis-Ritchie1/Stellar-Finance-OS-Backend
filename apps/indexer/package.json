@@ -1,0 +1,14 @@
+{
+  "name": "@finance-os/indexer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Long-running Stellar watcher that records Transactions",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/main.ts",
+    "start": "tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run --passWithNoTests"
+  }
+}
