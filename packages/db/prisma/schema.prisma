@@ -127,3 +127,13 @@ model WalletAddress {
   @@index([userId])
   @@map("wallet_addresses")
 }
+
+model Organization {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("organizations")
+}
