@@ -517,7 +517,7 @@ Status: ✅ done · 🟡 partly done · ⬜ not started
 | 4 | `apps/api`: auth + orgs + members + RBAC middleware | Cross-org access tests pass | ✅ |
 | 5 | Clients, invoices, vendors CRUD + OpenAPI | `/openapi.json` validates | 🟡 treasury accounts done; clients, invoices, vendors to do ([#4](./ISSUES.md#4-clients-and-vendors-crud-routes), [#5](./ISSUES.md#5-invoice-lifecycle-routes--public-payment-page)) |
 | 6 | `packages/stellar`: muxed address derivation, asset config, payment tx builder | Unit tests round-trip muxed IDs | ✅ (also memos, Horizon normalisation, signed-XDR verification, SEP-53) |
-| 7 | `packages/matching` engine | Table-driven tests for every case in §7 | ⬜ types only ([#1](./ISSUES.md#1-implement-the-pure-payment-matching-engine)) |
+| 7 | `packages/matching` engine | Table-driven tests for every case in §7 | ✅ |
 | 8 | `apps/indexer` with cursor persistence | Testnet payment appears as a Transaction within seconds | 🟡 `PaymentSource` + backfill CLI args; streaming not wired ([#2](./ISSUES.md#2-wire-the-indexer-stream-payments-with-cursor-persistence-and-backfill)) |
 | 9 | `apps/worker`: match job, overdue job | Pay invoice on testnet → status `paid` | ⬜ queue names only ([#3](./ISSUES.md#3-worker-match-transaction-and-overdue-invoices-jobs)) |
 | 10 | Payment requests + approvals + build-tx + submit with XDR verification | Tampered XDR is rejected in tests | 🟡 `verifySignedPayment` done; routes to do ([#6](./ISSUES.md#6-approval-policies-and-payment-request-approval-workflow), [#7](./ISSUES.md#7-build-unsigned-xdr-verify-signed-xdr-submit-and-settle-payment-requests)) |
