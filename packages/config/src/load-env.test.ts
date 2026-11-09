@@ -14,6 +14,7 @@ describe('parseEnv', () => {
     const env = parseEnv(valid);
     expect(env.STELLAR_NETWORK).toBe('testnet');
     expect(env.API_PORT).toBe(3000);
+    expect(env.INDEXER_POLL_INTERVAL_MS).toBe(30_000);
     expect(env.NODE_ENV).toBe('development');
   });
 

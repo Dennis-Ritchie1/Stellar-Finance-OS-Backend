@@ -16,6 +16,7 @@ export const EnvSchema = z.object({
   CONTRACT_DEPLOYMENTS_PATH: z.string().optional(),
 
   WEB_APP_URL: z.url().default('http://localhost:5173'),
+  INDEXER_POLL_INTERVAL_MS: z.coerce.number().int().min(100).default(30_000),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
 });
 
