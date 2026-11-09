@@ -14,10 +14,17 @@
   },
   "dependencies": {
     "@finance-os/config": "workspace:*",
+    "@finance-os/db": "workspace:*",
     "@finance-os/shared": "workspace:*",
+    "@finance-os/stellar": "workspace:*",
+    "bullmq": "^6.7.2",
+    "ioredis": "^6.0.0",
     "pino": "^10.4.0"
   },
   "devDependencies": {
-    "pino-pretty": "^13.2.0"
+    "@stellar/stellar-sdk": "^17.4.0",
+    "@testcontainers/postgresql": "12.2.1",
+    "pino-pretty": "^13.2.0",
+    "testcontainers": "12.2.1"
   }
 }

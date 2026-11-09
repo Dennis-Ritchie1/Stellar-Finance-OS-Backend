@@ -370,6 +370,13 @@ type MatchResult =
 
 Watches every `TreasuryAccount` and records payments.
 
+- **Source:** Horizon payments streaming per account (`/accounts/{id}/payments`), resuming from the persisted `indexerCursor`.
+- Captures payments, path payments, claimable-balance claims, and account merges.
+- Writes `Transaction` rows idempotently (upsert on `txHash + operationIndex`), then enqueues a `match-transaction` job.
+- On restart, resumes from the cursor — no gaps, no duplicates.
+- Backfill command: `pnpm --filter @finance-os/indexer backfill --account G... --from <cursor|ledger>` (pages through history via the same idempotent persist path; `ledger:<n>` is supported).
+
+> ⚠️ Verify before committing to a data source: the Stellar ecosystem is shifting from Horizon toward Stellar RPC. Stellar RPC only retains recent history (a limited window — check current docs), so it is unsuitable for long backfills on its own. The `packages/stellar` interface should hide which source is used, so you can switch to RPC events or a third-party indexer later without touching matching logic.
 - **Source:** Horizon `/accounts/{id}/payments` joined with transactions (so memos are available),
   wrapped by `HorizonPaymentSource` in `packages/stellar`. It normalises payments, path payments,
   claimable-balance claims and account merges into a source-independent `ObservedPayment`.
@@ -503,6 +510,22 @@ curl -s localhost:3000/v1/orgs/$ORG/treasury-accounts -H "authorization: Bearer 
 
 Known gaps (CORS, rate limiting, readiness checks) are tracked in [ISSUES.md #10](./ISSUES.md#10-production-hardening-cors-rate-limiting-readiness-session-cleanup).
 
+```bash
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/finance_os
+REDIS_URL=redis://localhost:6379
+JWT_SECRET=change-me                        # required (min 8 chars); sessions currently use opaque tokens
+STELLAR_NETWORK=testnet                     # testnet | mainnet
+HORIZON_URL=https://horizon-testnet.stellar.org
+STELLAR_RPC_URL=https://soroban-testnet.stellar.org
+USDC_ISSUER=                                # set per network — see note below
+CONTRACT_DEPLOYMENTS_PATH=./deployments/testnet.json   # copied from contracts repo (Phase 2)
+WEB_APP_URL=http://localhost:5173
+API_PORT=3000
+INDEXER_POLL_INTERVAL_MS=30000
+LOG_LEVEL=info
+ALLOW_MAINNET=false                         # mainnet refuses to start unless this is "true"
+SEED_TREASURY_ADDRESS=                      # optional testnet G-address for `pnpm db:seed`
+```
 ---
 
 ## 12. Build order & status
@@ -518,6 +541,7 @@ Status: ✅ done · 🟡 partly done · ⬜ not started
 | 5 | Clients, invoices, vendors CRUD + OpenAPI | `/openapi.json` validates | 🟡 treasury accounts done; clients, invoices, vendors to do ([#4](./ISSUES.md#4-clients-and-vendors-crud-routes), [#5](./ISSUES.md#5-invoice-lifecycle-routes--public-payment-page)) |
 | 6 | `packages/stellar`: muxed address derivation, asset config, payment tx builder | Unit tests round-trip muxed IDs | ✅ (also memos, Horizon normalisation, signed-XDR verification, SEP-53) |
 | 7 | `packages/matching` engine | Table-driven tests for every case in §7 | ✅ pure engine + table-driven tests |
+| 7 | `packages/matching` engine | Table-driven tests for every case in §7 | ✅ |
 | 8 | `apps/indexer` with cursor persistence | Testnet payment appears as a Transaction within seconds | 🟡 `PaymentSource` + backfill CLI args; streaming not wired ([#2](./ISSUES.md#2-wire-the-indexer-stream-payments-with-cursor-persistence-and-backfill)) |
 | 9 | `apps/worker`: match job, overdue job | Pay invoice on testnet → status `paid` | ✅ `match-transaction` (idempotent, row-locked) + `overdue-invoices` scheduler; settlement of payment requests pending ([#7](./ISSUES.md#7-build-unsigned-xdr-verify-signed-xdr-submit-and-settle-payment-requests)) |
 | 10 | Payment requests + approvals + build-tx + submit with XDR verification | Tampered XDR is rejected in tests | 🟡 `verifySignedPayment` done; routes to do ([#6](./ISSUES.md#6-approval-policies-and-payment-request-approval-workflow), [#7](./ISSUES.md#7-build-unsigned-xdr-verify-signed-xdr-submit-and-settle-payment-requests)) |
@@ -619,6 +643,20 @@ typecheck and test on every push and PR.
 
 ## 16. Contributing
 
+| # | Task | Done when | Status |
+|---|---|---|---|
+| 1 | Scaffold monorepo: pnpm, turbo, tsconfig, eslint, vitest, docker-compose | `pnpm dev` starts empty apps | ✅ |
+| 2 | `packages/config` + `packages/shared` (env, enums, money utils) | Unit tests for decimal math pass | ✅ |
+| 3 | `packages/db`: Prisma schema from §4, migrations, seed | `pnpm db:seed` creates demo org | ✅ |
+| 4 | `apps/api`: auth + orgs + members + RBAC middleware | Cross-org access tests pass | ✅ |
+| 5 | Clients, invoices, vendors CRUD + OpenAPI | `/openapi.json` validates | 🟡 treasury accounts done; clients, invoices, vendors to do |
+| 6 | `packages/stellar`: muxed address derivation, asset config, payment tx builder | Unit tests round-trip muxed IDs | ✅ (also memos, Horizon normalization, signed-XDR verification) |
+| 7 | `packages/matching` engine | Table-driven tests for every case in §5 | ⬜ types only |
+| 8 | `apps/indexer` with cursor persistence | Testnet payment appears as a Transaction within seconds | ✅ Supervisor streams every TreasuryAccount with cursor persistence, backoff restart and backfill (manual testnet check pending) |
+| 9 | `apps/worker`: match job, overdue job | End-to-end: pay invoice on testnet → status `paid` | ⬜ queue names only |
+| 10 | Payment requests + approvals + build-tx + submit with XDR verification | Tampered XDR is rejected in tests | 🟡 `verifySignedPayment` done and tested; routes to do |
+| 11 | Dashboard + treasury report endpoints | Numbers match seeded data | ⬜ |
+| 12 | CSV reconciliation export | Opens cleanly in Excel/Sheets | ⬜ |
 1. Read [`AGENTS.md`](./AGENTS.md) — its rules apply to humans too:
    no secret keys, no floats on amounts, every query org-scoped, `packages/matching` stays pure,
    Zod schemas on every route, idempotent indexer writes, testnet only.

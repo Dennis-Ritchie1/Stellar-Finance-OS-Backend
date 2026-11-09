@@ -248,16 +248,37 @@ importers:
       '@finance-os/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@finance-os/db':
+        specifier: workspace:*
+        version: link:../../packages/db
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@finance-os/stellar':
+        specifier: workspace:*
+        version: link:../../packages/stellar
+      bullmq:
+        specifier: ^6.7.2
+        version: 6.7.2(ioredis@6.0.0)(pg@8.23.1)
+      ioredis:
+        specifier: ^6.0.0
+        version: 6.0.0
       pino:
         specifier: ^10.4.0
         version: 10.4.0
     devDependencies:
+      '@stellar/stellar-sdk':
+        specifier: ^17.4.0
+        version: 17.4.0(debug@4.4.3)
+      '@testcontainers/postgresql':
+        specifier: 12.2.1
+        version: 12.2.1(bare-buffer@3.7.1)
       pino-pretty:
         specifier: ^13.2.0
         version: 13.2.0
+      testcontainers:
+        specifier: 12.2.1
+        version: 12.2.1(bare-buffer@3.7.1)
 
   apps/worker:
     dependencies:
