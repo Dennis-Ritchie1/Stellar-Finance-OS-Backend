@@ -14,6 +14,7 @@ const pairs: [string, Record<string, string>, readonly string[]][] = [
   ['MatchMethod', db.MatchMethod, shared.MatchMethodValues],
   ['MemoType', db.MemoType, shared.MemoTypeValues],
   ['ApprovalDecision', db.ApprovalDecision, shared.ApprovalDecisionValues],
+  ['TransactionMatchStatus', db.TransactionMatchStatus, shared.TransactionMatchStatusValues],
   ['ExportStatus', db.ExportStatus, shared.ExportStatusValues],
 ];
 

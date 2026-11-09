@@ -82,6 +82,12 @@ enum ApprovalDecision {
   rejected
 }
 
+/// Why a transaction still needs a human: the matcher only suggested, or flagged a problem.
+enum TransactionMatchStatus {
+  suggested
+  flagged
+}
+
 enum ExportStatus {
   pending
   ready
@@ -397,12 +403,17 @@ model Transaction {
   /// uint64 muxed id as a decimal string (exceeds JS safe integer range).
   muxedId           String?
   ledger            Int
+  /// Set by the worker when matching did not settle the transaction (null = matched or untouched).
+  matchStatus       TransactionMatchStatus?
+  /// Human-readable detail for matchStatus (reason, or the suggested candidates).
+  matchNote         String?
   matches           PaymentMatch[]
 
   @@unique([txHash, operationIndex])
   @@index([organizationId, createdAt])
   @@index([treasuryAccountId])
   @@index([muxedId])
+  @@index([organizationId, matchStatus])
   @@map("transactions")
 }
 

@@ -285,9 +285,21 @@ importers:
       '@finance-os/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@finance-os/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@finance-os/matching':
+        specifier: workspace:*
+        version: link:../../packages/matching
       '@finance-os/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      bullmq:
+        specifier: ^6.7.2
+        version: 6.7.2(ioredis@6.0.0)(pg@8.23.1)
+      ioredis:
+        specifier: ^6.0.0
+        version: 6.0.0
       pino:
         specifier: ^10.4.0
         version: 10.4.0
