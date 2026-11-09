@@ -1,5 +1,6 @@
 /**
  * @finance-os/matching — pure (transaction, openInvoices, clientHistory) → MatchResult.
- * No Prisma, no network. Engine implemented in build-order task 7.
+ * No Prisma, no network, no clock reads.
  */
+export * from './match.js';
 export * from './types.js';
